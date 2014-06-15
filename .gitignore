@@ -4,9 +4,10 @@
 
 # eclipse files
 /.build
+/.externalToolBuilders
 /.includepath
 /.project
-/.externalToolBuilders
+/.settings
 
 # build files
 blib/

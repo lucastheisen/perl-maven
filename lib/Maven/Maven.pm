@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Maven;
 
+# ABSTRACT: The main interface to maven
+# PODNAME: Maven::Maven
+
 use File::ShareDir;
 use Maven::Xml::Pom;
 use Maven::Xml::Settings;

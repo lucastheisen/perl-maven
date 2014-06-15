@@ -26,8 +26,8 @@ my $pom_for_parser_expected = {
     artifactId => 'my-project',
     version => '1.0.0',
     packaging => 'jar',
-    dependencies => [
-        {
+    dependencies => {
+        'com.pastdev:dependency:jar:assembly' => {
             groupId => 'com.pastdev',
             artifactId => 'dependency',
             version => '1.0.0',
@@ -43,7 +43,7 @@ my $pom_for_parser_expected = {
                 }
             ]
         }
-    ],
+    },
     modules => [
         'module-one'
     ],
@@ -83,8 +83,8 @@ my $pom_for_parser_expected = {
                 ]
             }
         ],
-        plugins => [
-            {
+        plugins => {
+            'com.pastdev.plugins:build-plugin' => {
                 groupId => 'com.pastdev.plugins',
                 artifactId => 'build-plugin',
                 version => '2.0',
@@ -93,13 +93,13 @@ my $pom_for_parser_expected = {
                 configuration => {
                     classifier => 'test'
                 },
-                dependencies => [
-                    {
+                dependencies => {
+                    'com.pastdev:plugin-dep:jar:' => {
                         groupId => 'com.pastdev',
                         artifactId => 'plugin-dep',
                         version => '1.0.0'
                     }
-                ],
+                },
                 executions => [
                     {
                         id => 'foo',
@@ -116,15 +116,15 @@ my $pom_for_parser_expected = {
                     }
                 ]
             }
-        ],
+        },
         pluginManagement => {
-            plugins => [
-                {
+            plugins => {
+                'com.pastdev.plugins:build-plugin' => {
                     groupId => 'com.pastdev.plugins',
                     artifactId => 'build-plugin',
                     version => '2.1'
                 }
-            ]
+            }
         },
         sourceDirectory => '${basedir}/src/main/java',
         scriptSourceDirectory => '${basedir}/src/main/scripts',

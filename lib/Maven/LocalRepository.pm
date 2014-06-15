@@ -1,9 +1,10 @@
-#!/usr/local/bin/perl
+use strict;
+use warnings;
 
 package Maven::LocalRepository;
 
-use strict;
-use warnings;
+# ABSTRACT: An local repository from which to resolve artifacts
+# PODNAME: Maven::LocalRepository
 
 use parent qw(Maven::Repository);
 __PACKAGE__->follow_best_practice;

@@ -37,6 +37,11 @@ sub _get_parser {
     return $_[0];
 }
 
+sub _key {
+    my ($self, $default) = @_;
+    return $default;
+}
+
 sub _parse_node {
     my ($self, $reader, $types) = @_;
 

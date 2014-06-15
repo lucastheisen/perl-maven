@@ -9,7 +9,7 @@ use Maven::Xml::Pom::BaseBuild;
 use Maven::Xml::Pom::Build;
 use Maven::Xml::Pom::CiManagement;
 use Maven::Xml::Pom::Contributor;
-use Maven::Xml::Pom::Dependency;
+use Maven::Xml::Pom::Dependencies;
 use Maven::Xml::Pom::DependencyManagement;
 use Maven::Xml::Pom::Developer;
 use Maven::Xml::Pom::DistributionManagement;
@@ -59,7 +59,6 @@ sub _add_value {
     my ($self, $name, $value) = @_;
 
     return if ( $name eq 'contributors' );
-    return if ( $name eq 'dependencies' );
     return if ( $name eq 'developers' );
     return if ( $name eq 'licenses' );
     return if ( $name eq 'modules' );
@@ -71,9 +70,6 @@ sub _add_value {
 
     if ( $name eq 'contributor' ) {
         push( @{$self->{contributors}}, $value );
-    }
-    elsif ( $name eq 'dependency' ) {
-        push( @{$self->{dependencies}}, $value );
     }
     elsif ( $name eq 'developer' ) {
         push( @{$self->{developers}}, $value );
@@ -112,8 +108,8 @@ sub _get_parser {
     elsif ( $name eq 'contributor' ) {
         return Maven::Xml::Pom::Contributor->new();
     }
-    elsif ( $name eq 'dependency' ) {
-        return Maven::Xml::Pom::Dependency->new();
+    elsif ( $name eq 'dependencies' ) {
+        return Maven::Xml::Pom::Dependencies->new();
     }
     elsif ( $name eq 'developer' ) {
         return Maven::Xml::Pom::Developer->new();

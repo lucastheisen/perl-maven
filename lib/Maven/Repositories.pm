@@ -1,7 +1,10 @@
-package Maven::Repositories;
-
 use strict;
 use warnings;
+
+package Maven::Repositories;
+
+# ABSTRACT: An ordered collection of repositories from which to resolve artifacts
+# PODNAME: Maven::Repositories
 
 sub new {
     my ($class, @args) = @_;

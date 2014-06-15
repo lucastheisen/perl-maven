@@ -1,9 +1,10 @@
-#!/usr/local/bin/perl
+use strict;
+use warnings;
 
 package Maven::Repository;
 
-use strict;
-use warnings;
+# ABSTRACT: An repository from which to resolve artifacts
+# PODNAME: Maven::Repository
 
 use parent qw(Class::Accessor);
 __PACKAGE__->follow_best_practice;

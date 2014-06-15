@@ -1,9 +1,10 @@
-#!/usr/local/bin/perl
+use strict;
+use warnings;
 
 package Maven::Artifact;
 
-use strict;
-use warnings;
+# ABSTRACT: An maven artifact definition
+# PODNAME: Maven::Artifact
 
 use overload fallback => 1,
     q{""} => 'to_string';
