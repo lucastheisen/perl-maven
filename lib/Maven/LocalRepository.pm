@@ -13,10 +13,9 @@ __PACKAGE__->mk_ro_accessors( qw(url) );
 use Log::Any;
 use Maven::Xml::Metadata;
 use Maven::Xml::Settings;
-use Sort::Versions;
+use URI::file;
 
 my $logger = Log::Any->get_logger();
-my $scheme_prefix = 'file://';
 
 sub new {
     return bless( {}, shift )->_init( @_ );
@@ -64,26 +63,34 @@ sub _has_version {
 sub _init {
     my ($self, %args) = @_;
 
-    my $path = $args{path};
-    if ( ! $path ) {
-        my $settings = $args{settings};
-        if ( ! $settings ) {
-            require Maven::Xml::Settings;
-            $settings = Maven::Xml::Settings->new();
-        }
-        $path = $settings->get_localRepository();
+    my $user_settings = $args{user_settings} || if ( $HOME;
+
+    if ( ! $settings ) {
+        my $user_settings = Maven::Xml::Settings->new(
+            file => $user_settings_file );
     }
-    $args{url} = $scheme_prefix . $path;
+    my $local_repository = $settings->get_localRepository();
+
+    if ( $^O =~ /^cygwin$/i ) {
+        # convert path if cygwin
+        $logger->trace( "converting path with cygpath" );
+        $local_repository = `cygpath -u '$local_repository'`;
+        chomp( $local_repository );
+    }
+    $args{url} = URI::file->new( $local_repository )->as_string();
 
     $self->Maven::Repository::_init( %args );
-
 
     return $self;
 }
 
 sub _list_versions {
     my ($self, $base_url, $snapshot) = @_;
-    my $base_path = substr( $base_url, length( $scheme_prefix ) );
+    my $base_path = URI->new( $base_url )->path();
+
+    # if windows, we have to strip the leading /
+    # from /C:/...
+    $base_path =~ s/^\/([A-Za-z]:)/$1/;
     
     my ($artifact, $version);
     if ( $snapshot ) {

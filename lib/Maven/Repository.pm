@@ -144,6 +144,9 @@ sub resolve {
         $logger->trace( 'resolving ', $artifact );
     }
 
+    croak( 'invalid artifact, no groupId' ) if ( !$artifact->get_groupId() );
+    croak( 'invalid artifact, no artifactId' ) if ( !$artifact->get_artifactId() );
+
     my $url = $self->_build_url( $artifact );
     if ( defined( $url ) ) {
         $artifact->set_url( $url );
