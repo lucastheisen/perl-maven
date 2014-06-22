@@ -8,12 +8,16 @@ BEGIN { use_ok('Maven::Xml::Metadata') }
 use Data::Dumper;
 use File::Basename;
 use File::Spec;
+use Maven::Maven;
 
 my $test_dir = dirname( File::Spec->rel2abs( $0 ) );
+my $maven = Maven::Maven->new( 
+    M2_HOME => File::Spec->catdir( $test_dir, 'M2_HOME' ),
+    'user.home' => File::Spec->catdir( $test_dir, 'HOME' ) );
 my $metadata;
 
-$metadata = Maven::Xml::Metadata->new( file => File::Spec->catfile( 
-    $test_dir, 'HOME', 'dot_m2', 'repository', 'com', 'pastdev', 'foo', 'maven-metadata-local.xml' ) );
+$metadata = Maven::Xml::Metadata->new( file => $maven->dot_m2(
+    'repository', 'com', 'pastdev', 'foo', 'maven-metadata-local.xml' ) );
 is( $metadata->get_groupId(), 'com.pastdev', 'groupId' );
 is( $metadata->get_artifactId(), 'foo', 'artifactId' );
 is_deeply( $metadata->get_versioning()->get_versions(), 
@@ -25,8 +29,8 @@ is( $metadata->get_versioning()->get_latest(), '1.0.1',
 is( $metadata->get_versioning()->get_release(), '1.0.1', 
     'versioning.release' );
 
-$metadata = Maven::Xml::Metadata->new( file => File::Spec->catfile( 
-    $test_dir, 'HOME', 'dot_m2', 'repository', 'com', 'pastdev', 'foo', '1.0.1-SNAPSHOT', 'maven-metadata-local.xml' ) );
+$metadata = Maven::Xml::Metadata->new( file => $maven->dot_m2(
+    'repository', 'com', 'pastdev', 'foo', '1.0.1-SNAPSHOT', 'maven-metadata-local.xml' ) );
 is( $metadata->get_groupId(), 'com.pastdev', 'snapshot groupId' );
 is( $metadata->get_artifactId(), 'foo', 'snapshot artifactId' );
 is( $metadata->get_version(), '1.0.1-SNAPSHOT', 'snapshot version' );

@@ -61,25 +61,17 @@ sub _has_version {
 }
 
 sub _init {
-    my ($self, %args) = @_;
-
-    my $user_settings = $args{user_settings} || if ( $HOME;
-
-    if ( ! $settings ) {
-        my $user_settings = Maven::Xml::Settings->new(
-            file => $user_settings_file );
-    }
-    my $local_repository = $settings->get_localRepository();
+    my ($self, $local_repository_path, @args) = @_;
 
     if ( $^O =~ /^cygwin$/i ) {
         # convert path if cygwin
         $logger->trace( "converting path with cygpath" );
-        $local_repository = `cygpath -u '$local_repository'`;
-        chomp( $local_repository );
+        $local_repository_path = `cygpath -u '$local_repository_path'`;
+        chomp( $local_repository_path );
     }
-    $args{url} = URI::file->new( $local_repository )->as_string();
 
-    $self->Maven::Repository::_init( %args );
+    $self->Maven::Repository::_init( @args,
+        'url' => URI::file->new( $local_repository_path )->as_string() );
 
     return $self;
 }

@@ -7,23 +7,55 @@ package Maven::Maven;
 # PODNAME: Maven::Maven
 
 use File::ShareDir;
+use Log::Any;
 use Maven::Xml::Pom;
-use Maven::Xml::Settings;
+use Maven::Repositories;
+use Maven::SettingsLoader qw(load_settings);
+
+my $logger = Log::Any->get_logger();
 
 sub new {
     return bless( {}, shift )->_init( @_ );
 }
 
+sub dot_m2 {
+    return shift->user_home( '.m2', @_ );
+}
+
 sub _init {
     my ($self, %options) = @_;
     
-    $self->{m2_home} = $options{m2_home} || $ENV{M2_HOME};
     $self->{properties} = {
+        'env.M2_HOME' => $options{M2_HOME} || $ENV{M2_HOME} || croak( "M2_HOME not defined" ),
         'user.home' => $options{'user.home'} || $ENV{HOME} || $ENV{USERPROFILE}
     };
     
-    my $settings = Maven::Xml::Settings->new( file => 
-        File::ShareDir::module_file( 'Maven::Xml::Settings', 'settings.xml' ) );
+    $self->{settings} = load_settings( 
+        $self->m2_home( 'conf', 'settings.xml' ),
+        $self->dot_m2( 'settings.xml' ),
+        $self->{properties} );
+    
+    return $self;
+}
+
+sub get_property {
+    my ($self, $key) = @_;
+    $logger->tracef( 'get_property(\'%s\')', $key );
+    return $self->{properties}{$key} || $key;
+}
+
+sub m2_home {
+    my ($self, @parts) = @_;
+    return File::Spec->catdir( $self->{properties}{'env.M2_HOME'}, @parts );
+}
+
+sub repositories {
+    return Maven::Repositories->new( maven => shift );
+}
+
+sub user_home {
+    my ($self, @parts) = @_;
+    return File::Spec->catdir( $self->{properties}{'user.home'}, @parts );
 }
 
 1;

@@ -8,6 +8,8 @@ package Maven::Repositories;
 
 use Carp;
 use Log::Any;
+use Maven::LocalRepository;
+use Maven::Repository;
 
 my $logger = Log::Any->get_logger();
 
@@ -16,15 +18,11 @@ sub new {
 }
 
 sub add_central {
-    my ($self, %options) = @_;
+    my ($self, @args) = @_;
     $logger->debug( "adding central" );
 
-    $self->add_repository(
-        url => 'http://repo.maven.apache.org/maven2',
-        agent => $options{agent}
-    );
-
-    return $self;
+    return $self->add_repository( @args,
+        url => 'http://repo.maven.apache.org/maven2' );
 }
 
 sub _artifact_not_found {
@@ -45,15 +43,7 @@ sub add_local {
     my ($self, @args) = @_;
     $logger->debug( "adding local" );
 
-    my $repository;
-    if ( @args && ref($args[0]) eq 'Maven::LocalRepository' ) {
-        $repository = $args[0];
-    }
-    else {
-        require Maven::LocalRepository;
-        $repository = Maven::LocalRepository->new( @args );
-    }
-    push( @{$self->{repositories}}, $repository );
+    push( @{$self->{repositories}}, Maven::LocalRepository->new( @args ) );
 
     return $self;
 }

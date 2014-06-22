@@ -16,7 +16,7 @@
       <port/>
       <host/>
       <nonProxyHosts/>
-      <id/>
+      <id>globalProxy</id>
     </proxy>
   </proxies>
 
@@ -29,7 +29,7 @@
       <filePermissions/>
       <directoryPermissions/>
       <configuration/>
-      <id/>
+      <id>globalServer</id>
     </server>
   </servers>
 
@@ -40,7 +40,7 @@
       <url/>
       <layout/>
       <mirrorOfLayouts/>
-      <id/>
+      <id>globalMirror</id>
     </mirror>
   </mirrors>
 
@@ -104,10 +104,14 @@
           <layout/>
         </pluginRepository>
       </pluginRepositories>
-      <id/>
+      <id>globalActiveProfile</id>
     </profile>
   </profiles>
 
-  <activeProfiles/>
-  <pluginGroups/>
+  <activeProfiles>
+    <activeProfile>globalActiveProfile</activeProfile>
+  </activeProfiles>
+  <pluginGroups>
+    <pluginGroup>com.pastdev.maven.plugins.global</pluginGroup>
+  </pluginGroups>
 </settings>
