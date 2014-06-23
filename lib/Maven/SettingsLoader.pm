@@ -76,14 +76,37 @@ sub _merge {
         $dominant->set_offline( $recessive->get_offline() );
     }
     
-    _shallow_merge_by_ids( $dominant->get_mirrors(), 
-        $recessive->get_mirrors() );
-    _shallow_merge_by_ids( $dominant->get_servers(), 
-        $recessive->get_servers() );
-    _shallow_merge_by_ids( $dominant->get_proxies(), 
-        $recessive->get_proxies() );
-    _shallow_merge_by_ids( $dominant->get_profiles(), 
-        $recessive->get_profiles() );
+    if ( $dominant->get_mirrors() ) {
+        _shallow_merge_by_ids( $dominant->get_mirrors(), 
+            $recessive->get_mirrors() );
+    }
+    else {
+        $dominant->set_mirrors( $recessive->get_mirrors() );
+    }
+
+    if ( $dominant->get_servers() ) {
+        _shallow_merge_by_ids( $dominant->get_servers(), 
+            $recessive->get_servers() );
+    }
+    else {
+        $dominant->set_servers( $recessive->get_servers() );
+    }
+
+    if ( $dominant->get_proxies() ) {
+        _shallow_merge_by_ids( $dominant->get_proxies(), 
+            $recessive->get_proxies() );
+    }
+    else {
+        $dominant->set_proxies( $recessive->get_proxies() );
+    }
+    
+    if ( $dominant->get_profiles() ) {
+        _shallow_merge_by_ids( $dominant->get_profiles(), 
+            $recessive->get_profiles() );
+    }
+    else {
+        $dominant->set_profiles( $recessive->get_profiles() );
+    }
     
     if ( $recessive->get_activeProfiles() ) { 
         my $dominant_active_profiles = $dominant->get_activeProfiles();
@@ -116,8 +139,11 @@ sub _merge {
 
 sub _shallow_merge_by_ids {
     my ($dominant, $recessive) = @_;
+    return if ( ! $recessive || ! scalar( @$recessive ) );
+
     my %dominant_by_id = map {$_->get_id() => $_} @$dominant;
     foreach my $recessive_entry ( @$recessive ) {
+        next unless $recessive_entry;
         if ( !$dominant_by_id{$recessive_entry->get_id()} ) {
             push( @$dominant, $recessive_entry );
         }

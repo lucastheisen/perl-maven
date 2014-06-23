@@ -70,8 +70,9 @@ sub _init {
         chomp( $local_repository_path );
     }
 
-    $self->Maven::Repository::_init( @args,
-        'url' => URI::file->new( $local_repository_path )->as_string() );
+    $self->Maven::Repository::_init( 
+        URI::file->new( $local_repository_path )->as_string(),
+        @args );
 
     return $self;
 }

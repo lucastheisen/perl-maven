@@ -6,6 +6,8 @@ package Maven::Maven;
 # ABSTRACT: The main interface to maven
 # PODNAME: Maven::Maven
 
+use Carp;
+use Data::Dumper;
 use File::ShareDir;
 use Log::Any;
 use Maven::Xml::Pom;
@@ -34,8 +36,22 @@ sub _init {
         $self->m2_home( 'conf', 'settings.xml' ),
         $self->dot_m2( 'settings.xml' ),
         $self->{properties} );
+
+    # some day we should load pom...
+    
+    $self->_load_active_profiles();
+
     $self->{repositories} = Maven::Repositories->new()
         ->add_local( $self->{settings}->get_localRepository() );
+    foreach my $profile ( @{$self->{active_profiles}} ) {
+        my $repositories = $profile->get_repositories();
+        if ( $repositories && scalar( @$repositories ) ) {
+            foreach my $repository ( @$repositories ) {
+                $self->{repositories}->add_repository(
+                    $repository->get_url() );
+            }
+        }
+    }
     
     return $self;
 }
@@ -46,13 +62,65 @@ sub get_property {
     return $self->{properties}{$key} || $key;
 }
 
+sub get_repositories {
+    return $_[0]->{repositories};
+}
+
+sub _is_active_profile {
+    my ($self, $profile) = @_;
+}
+
+sub _load_active_profiles {
+    my ($self) = @_;
+
+    my @active_profiles = ();
+
+    my %settings_active_profiles = map {$_=>1} @{$self->{settings}->get_activeProfiles()};
+    foreach my $profile ( @{$self->{settings}->{profiles}} ) {
+        if ( $settings_active_profiles{$profile->get_id()} ) {
+            push( @active_profiles, $profile );
+            next;
+        }
+
+        # add support for other ways of being active...
+        my $activation = $profile->get_activation();
+        if ( $activation ) {
+            my $activeByDefault = $profile->get_activeByDefault();
+            if ( $activeByDefault && $activeByDefault =~ /^true$/i ) {
+                push( @active_profiles, $profile );
+                next;
+            }
+            # not using jdk, so lets ignore it
+            # OS is complicated by cygwin, so we bow out for now...
+            my $property = $profile->get_property();
+            if ( $property
+                && $self->{properties}{$property->get_name()}
+                && $self->{properties}{$property->get_name()} eq $property->get_value() ) {
+                push( @active_profiles, $profile );
+                next;
+            }
+            my $file = $profile->get_file();
+            if ( $file ) {
+                my $missing = $file->get_missing();
+                if ( $missing && !-f $missing ) {
+                    push( @active_profiles, $profile );
+                    next;
+                }
+                my $exists = $file->get_exists();
+                if ( $exists && -f $exists ) {
+                    push( @active_profiles, $profile );
+                    next;
+                }
+            }
+        }
+    }
+    
+    $self->{active_profiles} = \@active_profiles;
+}
+
 sub m2_home {
     my ($self, @parts) = @_;
     return File::Spec->catdir( $self->{properties}{'env.M2_HOME'}, @parts );
-}
-
-sub repositories {
-    return $_[0]->{repositories};
 }
 
 sub user_home {

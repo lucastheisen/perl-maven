@@ -80,9 +80,9 @@
             <updatePolicy/>
             <checksumPolicy/>
           </snapshots>
-          <id/>
+          <id>central</id>
           <name/>
-          <url/>
+          <url>http://repo.maven.apache.org/maven2</url>
           <layout/>
         </repository>
       </repositories>
