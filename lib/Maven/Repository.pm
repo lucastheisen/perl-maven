@@ -126,9 +126,9 @@ sub _has_version {
 }
 
 sub _init {
-    my ($self, %args) = @_;
+    my ($self, $url, %args) = @_;
 
-    $self->{url} = $args{url};
+    $self->{url} = $url;
     $self->{agent} = $args{agent};
     $self->{metadata_filename} = $args{metadata_filename} 
         || 'maven-metadata.xml';

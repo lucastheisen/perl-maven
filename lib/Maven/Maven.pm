@@ -34,6 +34,8 @@ sub _init {
         $self->m2_home( 'conf', 'settings.xml' ),
         $self->dot_m2( 'settings.xml' ),
         $self->{properties} );
+    $self->{repositories} = Maven::Repositories->new()
+        ->add_local( $self->{settings}->get_localRepository() );
     
     return $self;
 }
@@ -50,7 +52,7 @@ sub m2_home {
 }
 
 sub repositories {
-    return Maven::Repositories->new( maven => shift );
+    return $_[0]->{repositories};
 }
 
 sub user_home {

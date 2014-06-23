@@ -21,8 +21,8 @@ sub add_central {
     my ($self, @args) = @_;
     $logger->debug( "adding central" );
 
-    return $self->add_repository( @args,
-        url => 'http://repo.maven.apache.org/maven2' );
+    return $self->add_repository( 
+        'http://repo.maven.apache.org/maven2', @args );
 }
 
 sub _artifact_not_found {
@@ -40,27 +40,22 @@ sub _artifact_not_found {
 }
 
 sub add_local {
-    my ($self, @args) = @_;
+    my ($self, $local_repository_path, @args) = @_;
     $logger->debug( "adding local" );
 
-    push( @{$self->{repositories}}, Maven::LocalRepository->new( @args ) );
+    push( @{$self->{repositories}}, 
+        Maven::LocalRepository->new( 
+            $local_repository_path, @args ) );
 
     return $self;
 }
 
 sub add_repository {
-    my ($self, @args) = @_;
-    $logger->debug( "adding repo" );
+    my ($self, $url, @args) = @_;
+    $logger->debug( "adding repo ", $url );
 
-    my $repository;
-    if ( ref( $args[0] ) eq 'Maven::Repository' ) {
-        $repository = $args[0];
-    }
-    else {
-        require Maven::Repository;
-        $repository = Maven::Repository->new( @args );
-    }
-    push( @{$self->{repositories}}, $repository );
+    push( @{$self->{repositories}},
+        Maven::Repository->new( $url, @args ) );
 
     return $self;
 }
