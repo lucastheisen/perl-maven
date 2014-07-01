@@ -20,12 +20,12 @@ sub load_settings {
     my $settings = Maven::Xml::Settings->new( file =>
         File::ShareDir::module_file( 'Maven::Xml::Settings', 
             'settings.xml' ) );
-    if ( -f $global_settings_file ) {
+    if ( $global_settings_file && -f $global_settings_file ) {
         $settings = _merge(
             Maven::Xml::Settings->new( file => $global_settings_file ),
             $settings );
     }
-    if ( -f $user_settings_file ) {
+    if ( $user_settings_file && -f $user_settings_file ) {
         $settings = _merge(
             Maven::Xml::Settings->new( file => $user_settings_file ),
             $settings );

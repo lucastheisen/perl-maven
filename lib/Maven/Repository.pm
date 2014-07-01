@@ -122,7 +122,9 @@ sub _has_version {
     my $metadata = Maven::Xml::Metadata->new( agent => $self->_get_agent(),
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
-    return $metadata->has_version( $version );
+    
+    my %versions = map {$_ => 1} @{$metadata->get_versioning()->get_versions()};
+    return $versions{$version};
 }
 
 sub _init {

@@ -20,15 +20,15 @@ sub _init {
         # http://www.perl.com/pub/2003/11/21/slurp.html
         $xml_string = do { local( @ARGV, $/ ) = $options{file}; <> };
     }
-    if ( !$xml_string && $options{uri} ) {
-        $logger->debugf( 'loading xml from uri %s', $options{uri} );
+    if ( !$xml_string && $options{url} ) {
+        $logger->debugf( 'loading xml from uri %s', $options{url} );
         my $agent = $options{agent};
         if ( !$agent ) { 
             require LWP::UserAgent;
             $agent = LWP::UserAgent->new();
         }
     
-        my $response = $agent->get( $options{uri} );
+        my $response = $agent->get( $options{url} );
         if ( ! $response->is_success() ) {
             if ( $options{die_on_failure} ) {
                 die( $response );

@@ -13,6 +13,7 @@ __PACKAGE__->mk_ro_accessors( qw(url) );
 use Log::Any;
 use Maven::Xml::Metadata;
 use Maven::Xml::Settings;
+use Sort::Versions;
 use URI::file;
 
 my $logger = Log::Any->get_logger();

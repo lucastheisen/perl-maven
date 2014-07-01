@@ -153,7 +153,7 @@ sub _get_parser {
 sub _key {
     my ($self, $default) = @_;
     return join( ':', 
-        $self->{groupId},
+        $self->{groupId} || '',
         $self->{artifactId} );
 }
 

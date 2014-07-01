@@ -31,5 +31,9 @@ is_deeply( \@repositories,
         'http://repo.maven.apache.org/maven2'
     ],
     'repositories' );
+    
+my $foo_pom = $maven->get_repositories()->resolve( 'com.pastdev:foo:pom:1.0.1' );
+is( $foo_pom->get_url(), "$local_repo_url/com/pastdev/foo/1.0.1/foo-1.0.1.pom",
+    'resolve foo pom' );
 
 done_testing();
