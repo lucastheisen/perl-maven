@@ -58,7 +58,7 @@ sub download {
             ':content_file' => ref($file) eq 'File::Temp' ? $file->filename() : $file );
     }
 
-    return $file;
+    return Maven::Artifact::DownloadedFile->new( $file );
 }
 
 sub get_coordinate {
@@ -141,6 +141,33 @@ sub set_packaging {
 
 sub to_string {
     return $_[0]->get_coordinate();
+}
+
+package Maven::Artifact::DownloadedFile;
+
+# Wraps a downloaded file that way if it is a temp file it will hold a 
+# reference to the temp file handle so as to keep the destructor from
+# getting called.  It will provide the filename when used as a string.
+
+use overload q{""} => 'filename', fallback => 1;
+
+sub new {
+    my $self = bless( {}, shift );
+    my $file = shift;
+    
+    if ( ref($file) eq 'File::Temp' ) {
+        $self->{handle} = $file;
+        $self->{name} = $file->filename();
+    }
+    else {
+        $self->{name} = $file;
+    }
+    
+    return $self;
+}
+
+sub filename {
+    return $_[0]->{name};
 }
 
 1;
