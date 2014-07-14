@@ -91,7 +91,17 @@ sub _detect_latest_snapshotVersion {
     my $metadata = Maven::Xml::Metadata->new( agent => $self->_get_agent(),
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
-    return $metadata->get_snapshotVersion( $extension, $classifier );
+
+    my $latest_snapshot;
+    foreach my $snapshot_version ( @{$metadata->get_versioning()->get_snapshotVersions()} ) {
+        if ( $extension && $extension eq $snapshot_version->get_extension() ) {
+            if ( !$classifier || $classifier eq $snapshot_version->get_classifier() ) {
+                $latest_snapshot = $snapshot_version;
+                last;
+            }
+        }
+    }
+    return $latest_snapshot;
 }
 
 sub _detect_latest_version {
@@ -101,7 +111,7 @@ sub _detect_latest_version {
     my $metadata = Maven::Xml::Metadata->new( agent => $self->_get_agent(),
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
-    return $metadata->get_latest_version();
+    return $metadata->get_versioning()->get_latest();
 }
 
 sub _get_agent {
