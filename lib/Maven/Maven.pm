@@ -85,21 +85,21 @@ sub _load_active_profiles {
         # add support for other ways of being active...
         my $activation = $profile->get_activation();
         if ( $activation ) {
-            my $activeByDefault = $profile->get_activeByDefault();
+            my $activeByDefault = $activation->get_activeByDefault();
             if ( $activeByDefault && $activeByDefault =~ /^true$/i ) {
                 push( @active_profiles, $profile );
                 next;
             }
             # not using jdk, so lets ignore it
             # OS is complicated by cygwin, so we bow out for now...
-            my $property = $profile->get_property();
+            my $property = $activation->get_property();
             if ( $property
                 && $self->{properties}{$property->get_name()}
                 && $self->{properties}{$property->get_name()} eq $property->get_value() ) {
                 push( @active_profiles, $profile );
                 next;
             }
-            my $file = $profile->get_file();
+            my $file = $activation->get_file();
             if ( $file ) {
                 my $missing = $file->get_missing();
                 if ( $missing && !-f $missing ) {
