@@ -53,12 +53,10 @@ sub _detect_latest_version {
 }
 
 sub _has_version {
-    my ($self, $base_url, $version) = @_;
+    my ($self, $url) = @_;
 
-    $logger->debug( 'loading metadata from ', $base_url );
-    my %version_map = map { $_ => 1 } $self->_list_versions( $base_url );
-
-    return $version_map{$version};
+    $logger->debug( '_has_version(', $url, ')' );
+    return ( -f $self->_path_from_url( $url ) );
 }
 
 sub _init {
@@ -80,11 +78,7 @@ sub _init {
 
 sub _list_versions {
     my ($self, $base_url, $snapshot) = @_;
-    my $base_path = URI->new( $base_url )->path();
-
-    # if windows, we have to strip the leading /
-    # from /C:/...
-    $base_path =~ s/^\/([A-Za-z]:)/$1/;
+    my $base_path = $self->_path_from_url( $base_url );
     
     my ($artifact, $version);
     if ( $snapshot ) {
@@ -119,6 +113,17 @@ sub _list_versions {
     }
     closedir( $dir_handle );
     return @versions;
+}
+
+sub _path_from_url {
+    my ($self, $url) = @_;
+    my $path = URI->new( $url )->path();
+
+    # if windows, we have to strip the leading /
+    # from /C:/...
+    $path =~ s/^\/([A-Za-z]:)/$1/;
+    
+    return $path;
 }
 
 1;
