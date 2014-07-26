@@ -10,6 +10,7 @@ use parent qw(Class::Accessor);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors( qw(url) );
 
+use Carp;
 use Log::Any;
 use Maven::Artifact;
 use Maven::Xml::Metadata;
