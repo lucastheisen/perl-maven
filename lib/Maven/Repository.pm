@@ -125,7 +125,7 @@ sub _get_agent {
 sub _has_version {
     my ($self, $url) = @_;
     $logger->debug( '_has_version(', $url, ')' );
-    return $self->_get_agent->get( $url )->is_success();
+    return $self->_get_agent->head( $url )->is_success();
 }
 
 sub _init {
