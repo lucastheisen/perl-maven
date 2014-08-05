@@ -75,7 +75,9 @@ sub _load_active_profiles {
 
     my @active_profiles = ();
 
-    my %settings_active_profiles = map {$_=>1} @{$self->{settings}->get_activeProfiles()};
+    my %settings_active_profiles = $self->{settings}->get_activeProfiles()
+        ? map {$_=>1} @{$self->{settings}->get_activeProfiles()}
+        : ();
     foreach my $profile ( @{$self->{settings}->{profiles}} ) {
         if ( $settings_active_profiles{$profile->get_id()} ) {
             push( @active_profiles, $profile );
@@ -93,7 +95,7 @@ sub _load_active_profiles {
             # not using jdk, so lets ignore it
             # OS is complicated by cygwin, so we bow out for now...
             my $property = $activation->get_property();
-            if ( $property
+            if ( $property && $property->get_name() && $property->get_value()
                 && $self->{properties}{$property->get_name()}
                 && $self->{properties}{$property->get_name()} eq $property->get_value() ) {
                 push( @active_profiles, $profile );

@@ -63,4 +63,8 @@ SKIP: {
     }
 };
 
+$maven = Maven::Maven->new( 
+    M2_HOME => File::Spec->catdir( $test_dir, 'no_active_profiles/M2_HOME' ),
+    'user.home' => File::Spec->catdir( $test_dir, 'no_active_profiles/HOME' ) );
+
 done_testing();
