@@ -9,12 +9,12 @@ use Data::Dumper;
 use File::Basename;
 use File::Spec;
 
-#use Log::Any::Adapter;
-#use Log::Log4perl qw(:easy);
-#Log::Log4perl->easy_init( $DEBUG );
-#Log::Any::Adapter->set('Log::Log4perl');
-#my $logger = Log::Log4perl->get_logger( "Maven_Maven.t" );
-#$logger->info( 'logging for Maven_Maven.t' );
+use Log::Any::Adapter;
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init( $DEBUG );
+Log::Any::Adapter->set('Log::Log4perl');
+my $logger = Log::Log4perl->get_logger( "Maven_Maven.t" );
+$logger->info( 'logging for Maven_Maven.t' );
 
 my $test_dir = dirname( File::Spec->rel2abs( $0 ) );
 my $maven;
@@ -57,6 +57,13 @@ SKIP: {
         ok( $jta_jar, 'resolve jta jar' );
         is( $jta_jar && $jta_jar->get_url(), "$maven_central_url/javax/transaction/jta/1.1/jta-1.1.jar",
             'jta jar url' );
+
+        # ensure no attempt is made to resolve an already resolved artifact
+        my $invalid_repository = Maven::Repository->new( "http://invalidurl" );
+        $jta_jar = $invalid_repository->resolve( $jta_jar );
+        ok( $jta_jar, 'resolve jta jar again' );
+        is( $jta_jar && $jta_jar->get_url(), "$maven_central_url/javax/transaction/jta/1.1/jta-1.1.jar",
+            'jta jar url again' );
 
         $jta_jar = $maven->get_repositories()->resolve( 'javax.transaction:jta:9.9.9' );
         ok( !$jta_jar, 'resolve invalid jta jar' );

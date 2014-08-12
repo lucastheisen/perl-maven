@@ -142,7 +142,11 @@ sub _init {
 sub resolve {
     my ($self, $artifact, @parts) = @_;
     
-    if ( ref( $artifact ) ne 'Maven::Artifact' ) {
+    if ( ref( $artifact ) eq 'Maven::Artifact' ) {
+        # already resolved, no need to do so again
+        return $artifact if ( $artifact->get_url() );
+    }
+    else {
         $artifact = Maven::Artifact->new( $artifact, @parts );
         $logger->trace( 'resolving ', $artifact );
     }
