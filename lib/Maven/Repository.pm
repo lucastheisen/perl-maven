@@ -8,7 +8,7 @@ package Maven::Repository;
 
 use parent qw(Class::Accessor);
 __PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_ro_accessors( qw(url) );
+__PACKAGE__->mk_ro_accessors( qw(agent url) );
 
 use Carp;
 use Log::Any;
@@ -56,7 +56,7 @@ sub _build_url {
         $artifact_name = join( '-', 
             $artifact->get_artifactId(),
             $snapshotVersion->get_value() );
-        if ( defined( $artifact->get_classifier() ) ) {
+        if ( $artifact->get_classifier() ) {
             $artifact_name .= '-' . $artifact->get_classifier() 
         }
         $artifact_name .= '.' . $artifact->get_packaging();
@@ -65,7 +65,7 @@ sub _build_url {
         $artifact_name = join( '-', 
             $artifact->get_artifactId(),
             $artifact->get_version() );
-        if ( defined( $artifact->get_classifier() ) ) {
+        if ( $artifact->get_classifier() ) {
             $artifact_name .= '-' . $artifact->get_classifier() 
         }
         $artifact_name .= '.' . $artifact->get_packaging();
@@ -80,11 +80,16 @@ sub _build_url {
     return $self->_has_version( $url ) ? $url : undef;
 }
 
+sub contains {
+    my ($self, $url) = @_;
+    return $self->{url} eq substr($url, 0, length($self->{url}));
+}
+
 sub _detect_latest_snapshotVersion {
     my ($self, $base_url, $extension, $classifier) = @_;
 
     $logger->debug( 'loading metadata from ', $base_url );
-    my $metadata = Maven::Xml::Metadata->new( agent => $self->_get_agent(),
+    my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
 
@@ -104,35 +109,29 @@ sub _detect_latest_version {
     my ($self, $base_url) = @_;
 
     $logger->debug( 'loading metadata from ', $base_url );
-    my $metadata = Maven::Xml::Metadata->new( agent => $self->_get_agent(),
+    my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
     return $metadata->get_versioning()->get_latest();
 }
 
-sub _get_agent {
-    my ($self) = @_;
-    my $agent = $self->{agent};
-    if ( !$agent ) {
-        require LWP::UserAgent;
-        $agent = LWP::UserAgent->new();
-        $agent->env_proxy();
-        $self->{agent} = $agent;
-    }
-    return $agent;
-}
-
 sub _has_version {
     my ($self, $url) = @_;
     $logger->debug( '_has_version(', $url, ')' );
-    return $self->_get_agent->head( $url )->is_success();
+    return $self->{agent}->head( $url )->is_success();
 }
 
 sub _init {
     my ($self, $url, %args) = @_;
 
     $self->{url} = $url;
-    $self->{agent} = $args{agent};
+    if ($args{agent}) {
+        $self->{agent} = $args{agent};
+    }
+    else {
+        require Maven::LwpAgent;
+        $self->{agent} = Maven::LwpAgent->new();
+    }
     $self->{metadata_filename} = $args{metadata_filename} 
         || 'maven-metadata.xml';
 

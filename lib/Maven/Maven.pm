@@ -10,9 +10,9 @@ use Carp;
 use Data::Dumper;
 use File::ShareDir;
 use Log::Any;
-use Maven::Xml::Pom;
 use Maven::Repositories;
 use Maven::SettingsLoader qw(load_settings);
+use Maven::Xml::Pom;
 
 my $logger = Log::Any->get_logger();
 
@@ -22,6 +22,12 @@ sub new {
 
 sub dot_m2 {
     return shift->user_home( '.m2', @_ );
+}
+
+sub _default_agent {
+    my ($self, @options) = @_;
+    require Maven::LwpAgent;
+    return Maven::LwpAgent->new(@options);
 }
 
 sub _init {
@@ -41,14 +47,31 @@ sub _init {
     
     $self->_load_active_profiles();
 
+    my $agent;
+    if ($options{agent}) {
+        if ($options{agent}->isa('Maven::Agent')) {
+            $agent = $options{agent};
+        }
+        elsif ($options{agent}->isa('LWP::UserAgent')) {
+            $agent = $self->_default_agent(agent => $agent);
+        }
+        else {
+            croak('unsupported agent ', ref($agent));
+        }
+    }
+    else {
+        $agent = $self->_default_agent();
+    }
+
     $self->{repositories} = Maven::Repositories->new()
-        ->add_local( $self->{settings}->get_localRepository() );
+        ->add_local($self->{settings}->get_localRepository());
     foreach my $profile ( @{$self->{active_profiles}} ) {
         my $repositories = $profile->get_repositories();
         if ( $repositories && scalar( @$repositories ) ) {
             foreach my $repository ( @$repositories ) {
                 $self->{repositories}->add_repository(
-                    $repository->get_url() );
+                    $repository->get_url(),
+                    agent => $agent);
             }
         }
     }

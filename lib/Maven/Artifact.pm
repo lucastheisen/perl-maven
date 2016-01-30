@@ -22,43 +22,47 @@ my $logger = Log::Any->get_logger();
 
 sub new {
     my ($class, @args) = @_;
-    return bless( {}, $class )->_init( @args );
+    return bless({}, $class)->_init(@args);
 }
 
 sub download {
     my ($self, %options) = @_;
 
-    croak( "url not set, perhaps you forgot to resolve?" ) if ( ! $self->{url} );
+    croak("url not set, perhaps you forgot to resolve?") if (! $self->{url});
 
-    my $file;
-    if ( $options{to} ) {
-        $file = $options{to};
-        if ( -d $file ) {
-            $file = File::Spec->catfile( $file, "$self->{artifactId}." . $self->get_packaging() );
+    my $agent;
+    if ($options{agent}) {
+        if ($options{agent}->isa('Maven::Agent')) {
+            $agent = $options{agent};
         }
-    }
-
-    my $uri = $self->get_uri();
-    if ( $uri->scheme() =~ /^file$/i 
-        && ( $uri->host() eq '' || $uri->host() =~ /^localhost$/ ) ) {
-        $logger->debugf( 'found local copy of %s', $self->{artifactId} );
-        if ( $file ) {
-            $logger->tracef( 'copy from %s to %s', $uri->path(), $file );
-            copy( $uri->path(), $file ) || croak( "failed to copy file $!" );
+        elsif ($options{agent}->isa('Maven::Maven')) {
+            $agent = $options{agent}
+                ->get_repositories()
+                ->get_repository($self->{url})
+                ->get_agent();
+        }
+        elsif ($options{agent}->isa('Maven::Repositories')) {
+            $agent = $options{repositories}
+                ->get_repository($self->{url})
+                ->get_agent();
+        }
+        elsif ($options{agent}->isa('Maven::Repository')) {
+            $agent = $options{repository}
+                ->get_agent();
+        }
+        elsif ($options{agent}->isa('LWP::UserAgent')) {
+            $agent = Maven::LwpAgent->new(agent => $agent);
         }
         else {
-            $file = $uri->path();
+            croak('unsupported agent ', ref($options{agent}));
         }
     }
     else {
-        $logger->debugf( 'downloading %s from %s', $self->{artifactId}, $uri->as_string() );
-        $file = File::Temp->new() if ( !$file );
-        my $agent = $options{agent} || LWP::UserAgent->new();
-        my $response = $agent->get( $uri, 
-            ':content_file' => ref($file) eq 'File::Temp' ? $file->filename() : $file );
+        require Maven::LwpAgent;
+        $agent = Maven::LwpAgent->new();
     }
-
-    return Maven::Artifact::DownloadedFile->new( $file );
+    
+    return $agent->download($self, %options);
 }
 
 sub get_coordinate {
@@ -111,7 +115,7 @@ sub _init {
         }
         elsif ( $count == 5 ) {
             $coordinate->{packaging} = $parts[2];
-            $coordinate->{classifier} = $parts[3];
+            $coordinate->{classifier} = $parts[3] if ( $parts[3] );
             $coordinate->{version} = $parts[4] if ( $parts[4] );
         }
 
@@ -132,6 +136,11 @@ sub _init {
     $self->{classifier} = $coordinate->{classifier};
 
     return $self;
+}
+
+sub is_complete {
+    my ($self) = @_;
+    $self->{groupId} && $self->{artifactId} && $self->{version} ? 1 : 0;
 }
 
 sub set_packaging {

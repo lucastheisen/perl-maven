@@ -24,8 +24,8 @@ sub _init {
         $logger->debugf( 'loading xml from uri %s', $options{url} );
         my $agent = $options{agent};
         if ( !$agent ) { 
-            require LWP::UserAgent;
-            $agent = LWP::UserAgent->new();
+            require Maven::LwpAgent;
+            $agent = Maven::LwpAgent->new();
         }
     
         my $response = $agent->get( $options{url} );

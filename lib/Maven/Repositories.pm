@@ -6,6 +6,10 @@ package Maven::Repositories;
 # ABSTRACT: An ordered collection of repositories from which to resolve artifacts
 # PODNAME: Maven::Repositories
 
+use parent qw(Class::Accessor);
+__PACKAGE__->follow_best_practice;
+__PACKAGE__->mk_accessors(qw(repositories));
+
 use Carp;
 use Log::Any;
 use Maven::LocalRepository;
@@ -67,6 +71,16 @@ sub _init {
     $self->{repositories} = [];
 
     return $self;
+}
+
+sub get_repository {
+    my ($self, $url) = @_;
+    foreach my $repository (@{$self->{repositories}}) {
+        if ($repository->contains($url)) {
+            return $repository;
+        }
+    }
+    return undef;
 }
 
 sub resolve {
