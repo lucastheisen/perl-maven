@@ -8,7 +8,6 @@ BEGIN { use_ok('Maven::LwpAgent') }
 use Digest::MD5;
 use File::Basename;
 use File::Spec;
-use Maven::Maven;
 
 my $test_dir = dirname( File::Spec->rel2abs( $0 ) );
 my $maven_central_url = 'http://repo.maven.apache.org/maven2';
@@ -33,29 +32,20 @@ SKIP: {
     $lwp->timeout( 1 );
     $lwp->env_proxy();
 
-    my $agent = Maven::LwpAgent->new(agent => $lwp);
-
-    require Maven::Maven;
-    my $maven = Maven::Maven->new( 
+    my $agent = Maven::LwpAgent->new(
+        agent => $lwp,
         M2_HOME => File::Spec->catdir($test_dir, 'M2_HOME'),
-        'user.home' => File::Spec->catdir($test_dir, 'HOME'),
-        agent => $agent);
+        'user.home' => File::Spec->catdir($test_dir, 'HOME'));
 
-    if ($agent->head($maven_central_url)->is_success()) {
-        my $jta_jar = $maven->get_repositories()->resolve('javax.transaction:jta:1.1');
+    if ($lwp->head($maven_central_url)->is_success()) {
+        my $jta_jar = $agent->resolve('javax.transaction:jta:1.1');
         ok($jta_jar, 'resolve jta jar');
 
-        is($maven->get_repositories()
-            ->get_repository($jta_jar->get_url())
-            ->get_agent(),
-            $agent,
-            'agents match');
-
-        my $jta_jar_file = $jta_jar->download(agent => $maven);
+        my $jta_jar_file = $agent->download($jta_jar);
         ok($jta_jar_file, 'got jta jar file');
         ok(-s $jta_jar_file, 'jta jar file is not empty');
 
-        my $jta_jar_file_to = $jta_jar->download(agent => $agent, to => File::Temp->new());
+        my $jta_jar_file_to = $agent->download($jta_jar, to => File::Temp->new());
         ok($jta_jar_file_to, 'got jta jar to file to');
         ok(-s $jta_jar_file_to, 'jta jar file to is not empty');
         

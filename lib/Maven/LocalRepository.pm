@@ -18,10 +18,6 @@ use URI::file;
 
 my $logger = Log::Any->get_logger();
 
-sub new {
-    return bless( {}, shift )->_init( @_ );
-}
-
 sub _by_maven_version {
     if ( $a =~ /^$b-SNAPSHOT$/ ) {
         return -1;
@@ -62,16 +58,11 @@ sub _has_version {
 sub _init {
     my ($self, $local_repository_path, @args) = @_;
 
-    if ( $^O =~ /^cygwin$/i ) {
-        # convert path if cygwin
-        $logger->trace( "converting path with cygpath" );
-        $local_repository_path = `cygpath -u '$local_repository_path'`;
-        chomp( $local_repository_path );
-    }
-
     $self->Maven::Repository::_init( 
-        URI::file->new( $local_repository_path )->as_string(),
-        @args );
+        URI::file->new($^O =~ /^cygwin$/i
+            #? Cygwin::win_to_posix_path($local_repository_path)
+            ? `cygpath -u $local_repository_path`
+            : $local_repository_path)->as_string());
 
     return $self;
 }

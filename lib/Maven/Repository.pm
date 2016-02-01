@@ -18,10 +18,7 @@ use Maven::Xml::Metadata;
 my $logger = Log::Any->get_logger();
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless( {}, $class );
-
-    return $self->_init( @args );
+    return bless({}, shift)->_init(@_);
 }
 
 sub _build_url {
@@ -36,7 +33,7 @@ sub _build_url {
     my $artifact_name;
     if ( ! $artifact->get_version() ) {
         # no version specified, detect latest
-        $logger->debug( "version not specified, detecting..." );
+        $logger->debug( 'version not specified, detecting...' );
         my $version = $self->_detect_latest_version( 
             join( '/', @url ) );
 
@@ -74,9 +71,9 @@ sub _build_url {
 
     my $url = join( '/', @url, $artifact->get_version(), $artifact_name );
     # verify version is available in repo
-    $logger->debug( sub { 'verifying version ',
-        $artifact->get_version(),
-        ' is available on ', $self->to_string() } );
+    $logger->debugf( 'verifying version %s is available on %s',
+        $artifact->get_version(), $self->to_string() )
+        if ($logger->is_debug());
     return $self->_has_version( $url ) ? $url : undef;
 }
 
@@ -86,54 +83,18 @@ sub contains {
 }
 
 sub _detect_latest_snapshotVersion {
-    my ($self, $base_url, $extension, $classifier) = @_;
-
-    $logger->debug( 'loading metadata from ', $base_url );
-    my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
-        url => "$base_url/$self->{metadata_filename}" );
-    return if ( ! $metadata );
-
-    my $latest_snapshot;
-    foreach my $snapshot_version ( @{$metadata->get_versioning()->get_snapshotVersions()} ) {
-        if ( $extension && $extension eq $snapshot_version->get_extension() ) {
-            if ( !$classifier || $classifier eq $snapshot_version->get_classifier() ) {
-                $latest_snapshot = $snapshot_version;
-                last;
-            }
-        }
-    }
-    return $latest_snapshot;
 }
 
 sub _detect_latest_version {
-    my ($self, $base_url) = @_;
-
-    $logger->debug( 'loading metadata from ', $base_url );
-    my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
-        url => "$base_url/$self->{metadata_filename}" );
-    return if ( ! $metadata );
-    return $metadata->get_versioning()->get_latest();
 }
 
 sub _has_version {
-    my ($self, $url) = @_;
-    $logger->debug( '_has_version(', $url, ')' );
-    return $self->{agent}->head( $url )->is_success();
 }
 
 sub _init {
     my ($self, $url, %args) = @_;
 
     $self->{url} = $url;
-    if ($args{agent}) {
-        $self->{agent} = $args{agent};
-    }
-    else {
-        require Maven::LwpAgent;
-        $self->{agent} = Maven::LwpAgent->new();
-    }
-    $self->{metadata_filename} = $args{metadata_filename} 
-        || 'maven-metadata.xml';
 
     return $self;
 }
@@ -147,7 +108,7 @@ sub resolve {
     }
     else {
         $artifact = Maven::Artifact->new( $artifact, @parts );
-        $logger->trace( 'resolving ', $artifact );
+        $logger->trace('resolving ', $artifact);
     }
     croak( 'invalid artifact, no groupId' ) if ( !$artifact->get_groupId() );
     croak( 'invalid artifact, no artifactId' ) if ( !$artifact->get_artifactId() );

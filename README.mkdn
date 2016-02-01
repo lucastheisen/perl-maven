@@ -1,19 +1,18 @@
 # NAME
 
-Maven::Maven - The main interface to maven
+Maven::Agent - A base agent for downloading artifacts
 
 # VERSION
 
-version 1.12
+version 1.00
 
-# AUTHORS
+# AUTHOR
 
-- Lucas Theisen <lucastheisen@pastdev.com>
-- Alceu Rodrigues de Freitas Junior <arfreitas@cpan.org>
+Lucas Theisen &lt;lucastheisen@pastdev.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Lucas Theisen.
+This software is copyright (c) 2014 by Lucas Theisen.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

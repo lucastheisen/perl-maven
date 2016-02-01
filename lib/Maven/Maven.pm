@@ -26,8 +26,8 @@ sub dot_m2 {
 
 sub _default_agent {
     my ($self, @options) = @_;
-    require Maven::LwpAgent;
-    return Maven::LwpAgent->new(@options);
+    require LWP::UserAgent;
+    return LWP::UserAgent->new(@options);
 }
 
 sub _init {
@@ -47,21 +47,7 @@ sub _init {
     
     $self->_load_active_profiles();
 
-    my $agent;
-    if ($options{agent}) {
-        if ($options{agent}->isa('Maven::Agent')) {
-            $agent = $options{agent};
-        }
-        elsif ($options{agent}->isa('LWP::UserAgent')) {
-            $agent = $self->_default_agent(agent => $agent);
-        }
-        else {
-            croak('unsupported agent ', ref($agent));
-        }
-    }
-    else {
-        $agent = $self->_default_agent();
-    }
+    my $agent = $options{agent} || $self->_default_agent();
 
     $self->{repositories} = Maven::Repositories->new()
         ->add_local($self->{settings}->get_localRepository());

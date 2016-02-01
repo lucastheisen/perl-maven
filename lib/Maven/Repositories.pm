@@ -13,7 +13,7 @@ __PACKAGE__->mk_accessors(qw(repositories));
 use Carp;
 use Log::Any;
 use Maven::LocalRepository;
-use Maven::Repository;
+use Maven::RemoteRepository;
 
 my $logger = Log::Any->get_logger();
 
@@ -59,7 +59,7 @@ sub add_repository {
     $logger->debug( "adding repo ", $url );
 
     push( @{$self->{repositories}},
-        Maven::Repository->new( $url, @args ) );
+        Maven::RemoteRepository->new( $url, @args ) );
 
     return $self;
 }

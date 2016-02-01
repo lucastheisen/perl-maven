@@ -9,11 +9,10 @@ use Data::Dumper;
 use File::Basename;
 use File::Spec;
 
-use Log::Any::Adapter;
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $DEBUG );
-Log::Any::Adapter->set('Log::Log4perl');
-my $logger = Log::Log4perl->get_logger( "Maven_Maven.t" );
+use Log::Any;
+use Log::Any::Adapter ('Stdout', log_level => 'debug' );
+
+my $logger = Log::Any->get_logger();
 $logger->info( 'logging for Maven_Maven.t' );
 
 my $test_dir = dirname( File::Spec->rel2abs( $0 ) );
@@ -35,7 +34,7 @@ my @repositories = map {$_->get_url()} @{$maven->get_repositories()->{repositori
 is_deeply( \@repositories,
     [
         $local_repo_url,
-        'http://maven.pastdev.com/nexus/groups/pastdev',
+        'http://pastdev.com/nexus/groups/pastdev',
         'http://repo.maven.apache.org/maven2'
     ],
     'repositories' );

@@ -24,16 +24,12 @@ sub _download_remote {
     return $file;
 }
 
-sub get {
-    return shift->{agent}->get(@_);
-}
-
-sub head {
-    return shift->{agent}->head(@_);
-}
-
 sub _init {
-    my ($self, %options) = @_;
+    my $self = shift;
+
+    $self->Maven::Agent::_init(@_);
+
+    my %options = @_;
 
     if ($options{agent}) {
         $self->{agent} = $options{agent};
