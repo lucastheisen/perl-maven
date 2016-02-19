@@ -1,5 +1,8 @@
 Revision history for Perl module IPC::Open3::Callback
 
+1.01 2016-02-19
+    - Cleaned up logging
+
 1.00 2016-02-18
     - Initial release
 

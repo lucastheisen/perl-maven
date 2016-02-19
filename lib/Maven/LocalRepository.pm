@@ -33,7 +33,7 @@ sub _by_maven_version {
 sub _detect_latest_snapshotVersion {
     my ($self, $base_url, $extension, $classifier) = @_;
 
-    $logger->debug( 'loading snapshot metadata from ', $base_url );
+    $logger->tracef('loading snapshot metadata from %s', $base_url);
     my @versions = sort _by_maven_version $self->_list_versions( $base_url, 1 );
 
     return pop( @versions );
@@ -42,7 +42,7 @@ sub _detect_latest_snapshotVersion {
 sub _detect_latest_version {
     my ($self, $base_url) = @_;
 
-    $logger->debug( 'loading metadata from ', $base_url );
+    $logger->tracef('loading metadata from %s', $base_url);
     my @versions = sort _by_maven_version $self->_list_versions( $base_url );
 
     return pop( @versions );
@@ -51,8 +51,10 @@ sub _detect_latest_version {
 sub _has_version {
     my ($self, $url) = @_;
 
-    $logger->debug( '_has_version(', $url, ')' );
-    return ( -f $self->_path_from_url( $url ) );
+    my $has_version = ( -f $self->_path_from_url( $url ) );
+    $logger->tracef('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
+
+    return $has_version;
 }
 
 sub _init {

@@ -33,7 +33,7 @@ sub _build_url {
     my $artifact_name;
     if ( ! $artifact->get_version() ) {
         # no version specified, detect latest
-        $logger->debug( 'version not specified, detecting...' );
+        $logger->trace('version not specified, detecting...');
         my $version = $self->_detect_latest_version( 
             join( '/', @url ) );
 
@@ -71,9 +71,9 @@ sub _build_url {
 
     my $url = join( '/', @url, $artifact->get_version(), $artifact_name );
     # verify version is available in repo
-    $logger->debugf( 'verifying version %s is available on %s',
+    $logger->tracef('verifying version %s is available on %s',
         $artifact->get_version(), $self->to_string() )
-        if ($logger->is_debug());
+        if ($logger->is_trace());
     return $self->_has_version( $url ) ? $url : undef;
 }
 

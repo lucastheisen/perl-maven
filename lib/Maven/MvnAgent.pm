@@ -150,7 +150,7 @@ sub _run_or_die {
     my ($self, $command) = @_;
 
     my $output = `$command`;
-    $logger->debug($output);
+    $logger->tracef("%s\n---- STDOUT ----\n%s\n---- END STDOUT ----", $command, $output);
 
     croak("Command [$command] failed: " . ($? >> 8)) if ($?);
 }

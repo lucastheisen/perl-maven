@@ -53,7 +53,7 @@ sub _interpolate {
         }
     }
     elsif ( $value ) {
-        $logger->tracef( 'interpolating \'%s\'', $value );
+        $logger->tracef('interpolating \'%s\'', $value);
         $value =~ s/\$\{(.*?)\}/$properties->{$1}/g;
     }
 

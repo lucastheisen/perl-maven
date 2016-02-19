@@ -19,12 +19,12 @@ sub _init {
 
     my $xml_string = $options{string};
     if ( !$xml_string && $options{file} ) {
-        $logger->debugf( 'loading xml from file %s', $options{file} );
+        $logger->debugf('loading xml from file %s', $options{file});
         # http://www.perl.com/pub/2003/11/21/slurp.html
         $xml_string = do { local( @ARGV, $/ ) = $options{file}; <> };
     }
     if ( !$xml_string && $options{url} ) {
-        $logger->debugf( 'loading xml from uri %s', $options{url} );
+        $logger->debugf('loading xml from uri %s', $options{url});
         my $agent = $options{agent};
         if ( !$agent ) { 
             require LWP::UserAgent;

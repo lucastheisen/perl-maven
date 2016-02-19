@@ -69,7 +69,7 @@ sub _init {
 
 sub get_property {
     my ($self, $key) = @_;
-    $logger->tracef( 'get_property(\'%s\')', $key );
+    $logger->tracef('get_property(\'%s\')', $key);
     return $self->{properties}{$key} || $key;
 }
 

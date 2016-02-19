@@ -18,7 +18,7 @@ my $logger = Log::Any->get_logger();
 sub _detect_latest_snapshotVersion {
     my ($self, $base_url, $extension, $classifier) = @_;
 
-    $logger->debug( 'loading metadata from ', $base_url );
+    $logger->tracef('loading metadata from %s', $base_url);
     my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
@@ -38,7 +38,7 @@ sub _detect_latest_snapshotVersion {
 sub _detect_latest_version {
     my ($self, $base_url) = @_;
 
-    $logger->debug( 'loading metadata from ', $base_url );
+    $logger->tracef('loading metadata from %s', $base_url);
     my $metadata = Maven::Xml::Metadata->new( agent => $self->{agent},
         url => "$base_url/$self->{metadata_filename}" );
     return if ( ! $metadata );
@@ -48,8 +48,7 @@ sub _detect_latest_version {
 sub _has_version {
     my ($self, $url) = @_;
     my $has_version = $self->{agent}->head( $url )->is_success();
-    $logger->debug(($has_version ? 'YES: ' : 'NO: '), 
-        '_has_version(', $url, ')');
+    $logger->tracef('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
     return $has_version;
 }
 
