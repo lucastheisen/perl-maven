@@ -86,7 +86,7 @@ be called.
 
 # AUTHOR
 
-Lucas Theisen &lt;lucastheisen@pastdev.com>
+Lucas Theisen <lucastheisen@pastdev.com>
 
 # COPYRIGHT AND LICENSE
 
@@ -99,7 +99,6 @@ the same terms as the Perl 5 programming language system itself.
 
 Please see those modules/websites for more information related to this module.
 
-- [Maven::LwpAgent](https://metacpan.org/pod/Maven::LwpAgent)
 - [Maven::MvnAgent](https://metacpan.org/pod/Maven::MvnAgent)
 - [Maven::Artifact](https://metacpan.org/pod/Maven::Artifact)
 - [Maven::Maven](https://metacpan.org/pod/Maven::Maven)
