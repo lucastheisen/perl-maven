@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom;
 
+# ABSTRACT: Maven Pom element
+# PODNAME: Maven::Xml::Pom
+
 use Maven::Xml::Common::Configuration;
 use Maven::Xml::Common::Repository;
 use Maven::Xml::Pom::BaseBuild;

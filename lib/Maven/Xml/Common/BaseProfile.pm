@@ -1,8 +1,10 @@
 use strict;
 use warnings;
 
-
 package Maven::Xml::Common::BaseProfile;
+
+# ABSTRACT: Maven BaseProfile element
+# PODNAME: Maven::Xml::Common::BaseProfile
 
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;

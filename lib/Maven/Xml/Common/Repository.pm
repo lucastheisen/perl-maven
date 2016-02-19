@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Common::Repository;
 
+# ABSTRACT: Maven Repositories element
+# PODNAME: Maven::Xml::Common::Repository
+
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors(qw(

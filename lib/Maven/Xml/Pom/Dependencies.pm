@@ -2,6 +2,10 @@ use strict;
 use warnings;
 
 package Maven::Xml::Pom::Dependencies;
+
+# ABSTRACT: Maven Dependencies element
+# PODNAME: Maven::Xml::Pom::Dependencies
+
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;
 

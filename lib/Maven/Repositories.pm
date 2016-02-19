@@ -80,7 +80,7 @@ sub get_repository {
             return $repository;
         }
     }
-    return undef;
+    return;
 }
 
 sub resolve {
@@ -103,3 +103,65 @@ sub resolve_or_die {
 }
 
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    # Dont use Repositories directly...  instead:
+    use Maven::Agent;
+    my $agent = Maven::Agent->new();
+    $agent->resolve('javax.servlet:servlet-api:2.5');
+
+=head1 DESCRIPTION
+
+Represents an ordered collection of repositories that can be used to resolve
+C<Maven::Artifact>'s.  This class should not be used directly.  Instead you 
+should use an C<Maven::Agent>.
+
+=method add_central(agent => $agent, [%options])
+
+Adds L<maven central|http://repo.maven.apache.org/maven2> to the list of
+repositories.  Passes all arguments through to C<add_repository>.
+
+=method add_local($local_repository_path)
+
+Add your C<$local_repository_path> to the list of repositories.
+
+=method add_repository($url, agent => $agent, [%options])
+
+Adds C<$url> to the list of repositories.  C<$agent> will be used to connect 
+to the repository.  The current options are:
+
+=over 4
+
+=item metadata_filename
+
+The name of the metadata file.  Defaults to 'maven-metadata.xml'.
+
+=back
+
+=method get_repository($url)
+
+Returns the repository that contains C<$url>.
+
+=method resolve($artifact, [%parts])
+
+Will attempt to resolve C<$artifact>.  C<$artifact> can be either an 
+instance of L<Maven::Artifact> or a coordinate string of the form
+L<groupId:artifactId[:packaging[:classifier]]:version|https://maven.apache.org/pom.html#Maven_Coordinates>
+If resolution was successful, a new L<Maven::Artifact> will be returned 
+with its C<uri> set.  Otherwise, C<undef> will be returned.  If C<%parts> 
+are supplied, their values will be used to override the corresponding values
+in C<$artifact> before resolution is attempted.
+
+=method resolve_or_die($artifact, [%parts])
+
+Calls L<resolve|/"resolve($artifact, [%parts])">, and, if resolution was 
+successful, the new C<$artifact> will be returned, otherwise, C<croak> will 
+be called.
+
+=head1 SEE ALSO
+Maven::LwpAgent
+Maven::MvnAgent
+Maven::Artifact
+Maven::Maven

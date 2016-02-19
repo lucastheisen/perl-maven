@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom::BaseBuild;
 
+# ABSTRACT: Maven BaseBuild element
+# PODNAME: Maven::Xml::Pom::BaseBuild
+
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors(qw(
@@ -84,6 +87,7 @@ sub _add_value {
 }
 
 package Maven::Xml::Pom::BaseBuild::Plugins;
+
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;
 

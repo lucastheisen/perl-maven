@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom::Build;
 
+# ABSTRACT: Maven Build element
+# PODNAME: Maven::Xml::Pom::Build
+
 use parent qw(Maven::Xml::Pom::BaseBuild);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors(qw(

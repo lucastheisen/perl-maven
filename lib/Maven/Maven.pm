@@ -27,7 +27,9 @@ sub dot_m2 {
 sub _default_agent {
     my ($self, @options) = @_;
     require LWP::UserAgent;
-    return LWP::UserAgent->new(@options);
+    my $agent = LWP::UserAgent->new(@options);
+    $agent->env_proxy(); # because why not?
+    return $agent;
 }
 
 sub _init {
@@ -126,7 +128,14 @@ sub _load_active_profiles {
         }
     }
     
-    $self->{active_profiles} = \@active_profiles;
+    if (@active_profiles) {
+        if ($self->{active_profiles}) {
+            push(@{$self->{active_profiles}}, @active_profiles);
+        }
+        else {
+            $self->{active_profiles} = \@active_profiles;
+        }
+    }
 }
 
 sub m2_home {
@@ -140,3 +149,84 @@ sub user_home {
 }
 
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    use Maven::Maven;
+
+    my $maven = Maven::Maven->new();
+    my $artifact = $maven->repositories()->resolve(
+        'javax.servlet:servlet-api:2.5');
+
+Or more likely
+
+    use Maven::Agent;
+
+    my $agent = Maven::Agent->new();
+    my $maven = $agent->maven();
+
+    my $global_settings_file = $maven->m2_home('conf', 'settings.xml');
+    my $user_settings_file = $maven->dot_m2('settings.xml');
+
+    my $artifact = $agent->resolve('javax.servlet:servlet-api:2.5');
+
+=head1 DESCRIPTION
+
+This class is a container for maven configuration data.  When constructed
+it parses the settings files (both user and global), and generates 
+L<Maven::Repositories> that can be used to resolve L<Maven::Artifact>'s.
+
+=constructor new([%options])
+
+Constructs a new instance.  It is uncommon to construct L<Maven::Maven> 
+directly, instead you should use one of the agents (L<Maven::Agent>, 
+L<Maven::MvnAgent>) and then obtain access through their 
+L<get_maven|Maven::Agent/get_maven()> method. The currently supported options
+are:
+
+=over 4
+
+=item agent
+
+An instance of L<LWP::UserAgent> that will be used to connect to the remote
+repositories.
+
+=item M2_HOME
+
+The path to the maven install directory.  Defaults to C<$ENV{HOME}>.
+
+=item user.home
+
+The path to the users home directory.  Defaults to 
+C<$ENV{HOME} || $ENV{USERPROFILE}>.
+
+=back
+
+=method dot_m2([@parts])
+
+Returns a path indicated by joining all of C<@parts> to the user maven dot
+directory.
+
+=method get_property($key)
+
+Returns the value of the effective settings property indicated by C<$key>.
+
+=method get_repositories()
+
+Returns the repositories configured in the effective settings.
+
+=method m2_home([@parts])
+
+Returns a path indicated by joining all of C<@parts> to the maven install
+directory.
+
+=method user_home([@parts])
+
+Returns a path indicated by joining all of C<@parts> to the user home 
+directory.
+
+=head1 SEE ALSO
+Maven::LwpAgent
+Maven::MvnAgent
+Maven::Artifact

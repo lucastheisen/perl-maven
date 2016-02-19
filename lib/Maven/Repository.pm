@@ -127,3 +127,35 @@ sub to_string {
 }
 
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    # Base class for repositories
+
+=head1 DESCRIPTION
+
+Base class for repositories.  Should not be used directly
+
+=method contains($url)
+
+Returns true if C<$url> starts with this repositories url.
+
+=method resolve
+
+Will attempt to resolve C<$artifact>.  C<$artifact> can be either an 
+instance of L<Maven::Artifact> or a coordinate string of the form
+L<groupId:artifactId[:packaging[:classifier]]:version|https://maven.apache.org/pom.html#Maven_Coordinates>
+If resolution was successful, a new L<Maven::Artifact> will be returned 
+with its C<uri> set.  Otherwise, C<undef> will be returned.  If C<%parts> 
+are supplied, their values will be used to override the corresponding values
+in C<$artifact> before resolution is attempted.
+
+=method to_string
+
+Returns the repository url.
+
+=head1 SEE ALSO
+Maven::LocalRepository
+Maven::RemoteRepository
+Maven::Repositories

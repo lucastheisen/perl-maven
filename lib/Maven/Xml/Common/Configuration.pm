@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Common::Configuration;
 
+# ABSTRACT: Maven Configuration element
+# PODNAME: Maven::Xml::Common::Configuration
+
 use parent qw(Maven::Xml::XmlNodeParser);
 __PACKAGE__->follow_best_practice;
 

@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom::Contributor;
 
+# ABSTRACT: Maven Contributor element
+# PODNAME: Maven::Xml::Pom::Contributor
+
 use Maven::Xml::Common::Properties;
 
 use parent qw(Maven::Xml::XmlNodeParser);

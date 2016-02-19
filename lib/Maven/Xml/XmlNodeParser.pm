@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::XmlNodeParser;
 
+# ABSTRACT: A parser for a Maven XML node
+# PODNAME: Maven::Xml::XmlNodeParser
+
 use parent qw(Class::Accessor);
 
 use XML::LibXML::Reader qw(:types);

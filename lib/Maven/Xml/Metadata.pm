@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Metadata;
 
+# ABSTRACT: Maven Metadata element
+# PODNAME: Maven::Xml::Metadata
+
 use parent qw(Maven::Xml::XmlFile);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors(qw(groupId artifactId version versioning plugins));

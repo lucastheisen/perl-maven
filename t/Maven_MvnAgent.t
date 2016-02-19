@@ -49,29 +49,29 @@ SKIP: {
 
     skip "LWP::UserAgent not installed", 7 if $@;
 
-    my $lwp = LWP::UserAgent->new();
-    $lwp->timeout(1);
-    $lwp->env_proxy();
-
     my $user_home = File::Spec->catdir($test_dir, 'HOME');
     my $temp_dir = File::Temp->newdir();
     my $mvn_test_user_home = File::Spec->catdir($temp_dir, 'HOME');
     `cp -r $user_home $temp_dir`;
     my $mvn_test_user_settings = File::Spec->catfile($mvn_test_user_home, '.m2', 'settings.xml');
+    `mv $mvn_test_user_home/.m2/empty_settings.xml $mvn_test_user_settings`;
     ok((-f $mvn_test_user_settings), "mvn test $mvn_test_user_home/.m2/settings.xml exists");
 
     my $agent = Maven::MvnAgent->new(
-        agent => $lwp,
         M2_HOME => File::Spec->catdir($test_dir, 'M2_HOME'),
         'user.home' => $mvn_test_user_home);
     is($agent->get_maven()->dot_m2('settings.xml'), $mvn_test_user_settings, 'user settings');
-
     my $get_goal = 'org.apache.maven.plugins:maven-dependency-plugin:2.10:get';
     is($agent->get_command('javax.servlet:servlet-api:2.5'),
-        "mvn --settings " . escape_and_quote(os_path($mvn_test_user_settings)) . " -Duser.home=" . escape_and_quote(os_path($mvn_test_user_home)) . " $get_goal -DartifactId=\"servlet-api\" -DgroupId=\"javax.servlet\" -Dpackaging=\"jar\" -DremoteRepositories=\"$pastdev_url,$maven_central_url\" -Dversion=\"2.5\"",
+        "mvn --settings " 
+            . escape_and_quote(os_path($mvn_test_user_settings)) 
+            . " -Duser.home=" 
+            . escape_and_quote(os_path($mvn_test_user_home)) 
+            . " $get_goal -DartifactId=\"servlet-api\" -DgroupId=\"javax.servlet\""
+            . " -Dpackaging=\"jar\" -DremoteRepositories=\"$maven_central_url\" -Dversion=\"2.5\"",
         'get servlet-api command');
 
-    if ($lwp->head($maven_central_url)->is_success()) {
+    if ($agent->get_maven()->_default_agent(timeout => 1)->head($maven_central_url)->is_success()) {
         my $jta_jar = $agent->resolve('javax.transaction:jta:1.1');
         ok($jta_jar, 'resolve jta jar');
 

@@ -3,12 +3,14 @@ use warnings;
 
 package Maven::Command;
 
+# ABSTRACT: A command builder for mvn
+# PODNAME: Maven::Command
+
 use Exporter qw(import);
 
 our @EXPORT_OK = qw(
     mvn_artifact_params
     mvn_command
-    mvn_goal
 );
 
 sub _escape_and_quote {
@@ -58,3 +60,46 @@ sub mvn_command {
 }
 
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    use Maven::Command qw(mvn_artifact_params mvn_command);
+
+    # mvn -X package
+    my $command = mvn_command({'-X' => undef}, 'package');
+    `$command`;
+
+    # mvn --settings "/opt/shared/.m2/settings.xml" dependency:get \
+    #     -DgroupId="javax.servlet" \
+    #     -DartifactId="servlet-api" \
+    #     -Dversion="2.5"
+    my $artifact = Maven::Artifact->new('javax.servlet:servlet-api:2.5');
+    my $command = mvn_command(
+        {'--settings' => "/opt/shared/.m2/settings.xml"}
+        'package', 
+        mvn_artifact_params($artifact));
+    `$command`;
+
+=head1 DESCRIPTION
+
+The base class for agents specifying the minimal interface.  Subclasses
+must implement the C<_download_remote> method.
+
+=export_ok mvn_artifact_params($artifact)
+
+Generates a parameter hash from the coordinate values of C<$artifact>.
+
+=export_ok mvn_command([\%mvn_options], @goals_and_phases, [\%parameters])
+
+Builds an C<mvn> command as a string.  C<%mvn_options> can be any supported
+option to C<mvn>, C<@goals_and_phases> can be any list of goals or phases to
+be executed and C<%parameters> are any parameters that should be supplied
+as system properties (typically used to specify parameters to the goals as
+needed).
+
+=head1 SEE ALSO
+Maven::LwpAgent
+Maven::MvnAgent
+Maven::Artifact
+Maven::Maven

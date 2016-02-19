@@ -25,55 +25,15 @@ sub new {
     return bless({}, $class)->_init(@args);
 }
 
-sub download {
-    my ($self, %options) = @_;
-
-    croak("url not set, perhaps you forgot to resolve?") if (! $self->{url});
-
-    my $agent;
-    if ($options{agent}) {
-        if ($options{agent}->isa('Maven::Agent')) {
-            $agent = $options{agent};
-        }
-        elsif ($options{agent}->isa('Maven::Maven')) {
-            $agent = $options{agent}
-                ->get_repositories()
-                ->get_repository($self->{url})
-                ->get_agent();
-        }
-        elsif ($options{agent}->isa('Maven::Repositories')) {
-            $agent = $options{repositories}
-                ->get_repository($self->{url})
-                ->get_agent();
-        }
-        elsif ($options{agent}->isa('Maven::Repository')) {
-            $agent = $options{repository}
-                ->get_agent();
-        }
-        elsif ($options{agent}->isa('LWP::UserAgent')) {
-            $agent = Maven::LwpAgent->new(agent => $agent);
-        }
-        else {
-            croak('unsupported agent ', ref($options{agent}));
-        }
-    }
-    else {
-        require Maven::LwpAgent;
-        $agent = Maven::LwpAgent->new();
-    }
-    
-    return $agent->download($self, %options);
-}
-
 sub get_coordinate {
     my ($self) = @_;
     
-    return join( ':',
-        $self->get_groupId() || '',
-        $self->get_artifactId() || '',
-        $self->get_packaging() || '',
-        $self->get_classifier() || '',
-        $self->get_version() || '' );
+    return join(':',
+        $self->get_groupId() || (),
+        $self->get_artifactId() || (),
+        $self->get_packaging() || (),
+        $self->get_classifier() || (),
+        $self->get_version() || ());
 }
 
 sub get_packaging {
@@ -138,11 +98,6 @@ sub _init {
     return $self;
 }
 
-sub is_complete {
-    my ($self) = @_;
-    $self->{groupId} && $self->{artifactId} && $self->{version} ? 1 : 0;
-}
-
 sub set_packaging {
     my ($self, $packaging) = @_;
     $self->{packaging} = $packaging;
@@ -152,31 +107,112 @@ sub to_string {
     return $_[0]->get_coordinate();
 }
 
-package Maven::Artifact::DownloadedFile;
-
-# Wraps a downloaded file that way if it is a temp file it will hold a 
-# reference to the temp file handle so as to keep the destructor from
-# getting called.  It will provide the filename when used as a string.
-
-use overload q{""} => 'filename', fallback => 1;
-
-sub new {
-    my $self = bless( {}, shift );
-    my $file = shift;
-    
-    if ( ref($file) eq 'File::Temp' ) {
-        $self->{handle} = $file;
-        $self->{name} = $file->filename();
-    }
-    else {
-        $self->{name} = $file;
-    }
-    
-    return $self;
-}
-
-sub filename {
-    return $_[0]->{name};
-}
-
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    use Maven::Artifact;
+
+    my $artifact = Maven::Artifact->new('javax.servlet:servlet-api:2.5);
+
+    my $artifact = Maven::Artifact->new('javax.servlet:servlet-api',
+        version => 2.5
+        packaging => 'jar');
+
+Or, more commonly:
+
+    use Maven::LwpAgent;
+
+    my $agent = Maven::LwpAgent->new();
+    my $artifact = $agent->resolve('javax.servlet:servlet-api:2.5);
+
+=head1 DESCRIPTION
+
+Represents a maven artifact.  Artifacts are identified by coordinates.  An
+artifacts coordinate is made up of: 
+L<groupId:artifactId[:packaging[:classifier]]:version|https://maven.apache.org/pom.html#Maven_Coordinates>
+Packaging and classifier are optional, and if not specified, then packaging
+defaults to C<jar> and classifier is left empty.  This representation also
+contains a uri that is specified by when this artifact gets 
+L<resolved|Maven::Agent/"resolve($artifact, [%parts])">.
+
+=constructor new($artifact, %parts)
+
+Returns a new artifact indicated by C<$artifact>.  If C<%parts> are supplied,
+their values will be used to override the corresponding values in C<$artifact>
+before resolution is attempted.
+
+=method get_artifactId()
+
+Returns the C<artifactId>.
+
+=method get_artifact_name()
+
+Returns the C<artifact_name>.
+
+=method get_classifier()
+
+Returns the C<classifier>.
+
+=method get_coordinate()
+
+Returns the coordinate representation of this artifact.
+
+=method get_groupId()
+
+Returns the C<groupId>.
+
+=method get_packaging()
+
+Returns the C<packaging>.
+
+=method get_uri()
+
+Returns the C<url> as an L<URI> object.
+
+=method get_url()
+
+Returns the C<url>.
+
+=method get_version()
+
+Returns the C<version>.
+
+=method set_groupId($group_id)
+
+Sets the C<groupId> to C<$group_id>.
+
+=method set_artifactId($artifact_id)
+
+Sets the C<artifactId> to C<$artifact_id>.
+
+=method set_artifact_name($artifact_name)
+
+Sets the C<artifact_name> to C<$artifact_name>.
+
+=method set_classifier($classifier)
+
+Sets the C<classifier> to C<$classifier>.
+
+=method set_packaging($packaging)
+
+Sets the C<packaging> to C<$packaging>.
+
+=method set_url($url)
+
+Sets the C<url> to C<$url>.
+
+=method set_version($version)
+
+Sets the C<version> to C<$version>.
+
+=method to_string()
+
+Returns the value of L<get_coordinate|/get_coordinate()>.
+
+=head1 SEE ALSO
+Maven::LwpAgent
+Maven::MvnAgent
+Maven::Artifact
+Maven::Maven

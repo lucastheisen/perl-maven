@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Settings;
 
+# ABSTRACT: Maven Settings element
+# PODNAME: Maven::Xml::Settings
+
 use Maven::Xml::Common::BaseProfile;
 use Maven::Xml::Common::Configuration;
 use Maven::Xml::Common::Repository;

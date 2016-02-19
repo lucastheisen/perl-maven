@@ -48,9 +48,7 @@ SKIP: {
 
     skip "LWP::UserAgent not installed", 2 if $@;
 
-    my $agent = LWP::UserAgent->new();
-    $agent->timeout( 1 );
-    $agent->env_proxy();
+    my $agent = $maven->_default_agent(timeout => 1);
     if ( $agent->head( $maven_central_url )->is_success() ) {
         my $jta_jar = $maven->get_repositories()->resolve( 'javax.transaction:jta:1.1' );
         ok( $jta_jar, 'resolve jta jar' );
@@ -72,5 +70,7 @@ SKIP: {
 $maven = Maven::Maven->new( 
     M2_HOME => File::Spec->catdir( $test_dir, 'no_active_profiles/M2_HOME' ),
     'user.home' => File::Spec->catdir( $test_dir, 'no_active_profiles/HOME' ) );
+@active_profiles = map {$_->get_id()} @{$maven->{active_profiles}};
+is_deeply( \@active_profiles, ['userSettings'], 'active profiles' );
 
 done_testing();

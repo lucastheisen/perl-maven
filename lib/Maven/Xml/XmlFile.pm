@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::XmlFile;
 
+# ABSTRACT: A base class for Maven XML file
+# PODNAME: Maven::Xml::XmlFile
+
 use parent qw(Maven::Xml::XmlNodeParser);
 
 use Carp;

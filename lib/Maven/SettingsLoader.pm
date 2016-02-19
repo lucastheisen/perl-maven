@@ -151,3 +151,27 @@ sub _shallow_merge_by_ids {
 }
 
 1;
+
+__END__
+=head1 SYNOPSIS
+
+    use Maven::SettingsLoader qw(load_settings);
+    my $settings = load_settings(
+        '/path/to/global/settings.xml',
+        '/path/to/user/settings.xml',
+        {
+            'env.M2_HOME' => $ENV{M2_HOME},
+            'user.home' => $ENV{HOME}
+        });
+
+=head1 DESCRIPTION
+
+Used by L<Maven::Maven> to load settings files.
+
+=export_ok load_settings([$global_path], [$local_path], %properties)
+
+Will load C<$global_path>, then overlay C<$local_path>, interpolating 
+placeholders using the values from C<$properties>.
+
+=head1 SEE ALSO
+Maven::Maven

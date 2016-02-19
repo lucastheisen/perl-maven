@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom::Profile;
 
+# ABSTRACT: Maven Profile element
+# PODNAME: Maven::Xml::Pom::Profile
+
 use parent qw(Maven::Xml::Common::BaseProfile);
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_ro_accessors(qw(

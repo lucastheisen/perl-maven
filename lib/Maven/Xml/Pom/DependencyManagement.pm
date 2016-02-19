@@ -3,6 +3,9 @@ use warnings;
 
 package Maven::Xml::Pom::DependencyManagement;
 
+# ABSTRACT: Maven DependencyManagement element
+# PODNAME: Maven::Xml::Pom::DependencyManagement
+
 use Maven::Xml::Pom::Dependencies;
 
 use parent qw(Maven::Xml::XmlNodeParser);
