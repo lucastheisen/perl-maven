@@ -227,6 +227,5 @@ Returns a path indicated by joining all of C<@parts> to the user home
 directory.
 
 =head1 SEE ALSO
-Maven::LwpAgent
 Maven::MvnAgent
 Maven::Artifact

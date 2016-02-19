@@ -122,9 +122,9 @@ __END__
 
 Or, more commonly:
 
-    use Maven::LwpAgent;
+    use Maven::Agent;
 
-    my $agent = Maven::LwpAgent->new();
+    my $agent = Maven::Agent->new();
     my $artifact = $agent->resolve('javax.servlet:servlet-api:2.5);
 
 =head1 DESCRIPTION
@@ -212,7 +212,7 @@ Sets the C<version> to C<$version>.
 Returns the value of L<get_coordinate|/get_coordinate()>.
 
 =head1 SEE ALSO
-Maven::LwpAgent
+Maven::Agent
 Maven::MvnAgent
 Maven::Artifact
 Maven::Maven

@@ -195,7 +195,6 @@ successful, the new C<$artifact> will be returned, otherwise, C<croak> will
 be called.
 
 =head1 SEE ALSO
-Maven::LwpAgent
 Maven::MvnAgent
 Maven::Artifact
 Maven::Maven

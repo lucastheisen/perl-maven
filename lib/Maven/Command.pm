@@ -99,7 +99,6 @@ as system properties (typically used to specify parameters to the goals as
 needed).
 
 =head1 SEE ALSO
-Maven::LwpAgent
 Maven::MvnAgent
 Maven::Artifact
 Maven::Maven
