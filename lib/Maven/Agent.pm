@@ -36,7 +36,7 @@ sub download {
     if ( $options{to} ) {
         $file = $options{to};
         if ( -d $file ) {
-            $file = File::Spec->catfile( $file, "$self->{artifactId}." . $self->get_packaging() );
+            $file = File::Spec->catfile( $file, "$artifact->{artifactId}." . $artifact->get_packaging() );
         }
     }
 

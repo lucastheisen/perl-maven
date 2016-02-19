@@ -52,7 +52,7 @@ sub _has_version {
     my ($self, $url) = @_;
 
     my $has_version = ( -f $self->_path_from_url( $url ) );
-    $logger->tracef('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
+    $logger->debugf('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
 
     return $has_version;
 }

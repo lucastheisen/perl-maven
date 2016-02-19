@@ -48,7 +48,7 @@ sub _detect_latest_version {
 sub _has_version {
     my ($self, $url) = @_;
     my $has_version = $self->{agent}->head( $url )->is_success();
-    $logger->tracef('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
+    $logger->debugf('version %s at %s', ($has_version ? 'found' : 'not found'), $url);
     return $has_version;
 }
 
