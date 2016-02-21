@@ -6,6 +6,8 @@
 /.build
 /.includepath
 /.project
+/.classpath
+/.settings
 /.externalToolBuilders
 
 # build files
