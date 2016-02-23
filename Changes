@@ -1,5 +1,9 @@
 Revision history for Perl module IPC::Open3::Callback
 
+1.03 2016-02-21
+    - Renamed project to Maven-Agent to comply with pause naming restriction
+      on top level namespaces
+
 1.02 2016-02-21
     - Fixed bug in download to directory
 
