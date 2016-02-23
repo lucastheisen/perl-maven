@@ -4,7 +4,7 @@ Maven::Agent - A base agent for working with maven
 
 # VERSION
 
-version 1.02
+version 1.03
 
 # SYNOPSIS
 
@@ -86,7 +86,7 @@ be called.
 
 # AUTHOR
 
-Lucas Theisen &lt;lucastheisen@pastdev.com>
+Lucas Theisen <lucastheisen@pastdev.com>
 
 # COPYRIGHT AND LICENSE
 
