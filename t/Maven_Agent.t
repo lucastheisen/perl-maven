@@ -36,6 +36,11 @@ is($file, $to_file, 'file is to_file');
 is(do { local( @ARGV, $/ ) = $to_file; <> },
     do { local( @ARGV, $/ ) = $expected_file; <> },
     'contents match');
+my $to_dir = File::Temp->newdir();
+$file = $agent->download('com.pastdev:foo:pom:1.0.1',
+    to => $to_dir);
+my $expected_download_file = File::Spec->catfile($to_dir, 'foo.pom');
+is($file, $expected_download_file, 'wrote expected file name to temp dir');
 
 SKIP: {
     eval { require LWP::UserAgent };

@@ -25,22 +25,20 @@ sub download {
 
     if ($self->is_local($artifact)) {
         my $path = $artifact->get_uri()->path();
-        if ($options{to} && $options{to} ne $path) {
-            copy($path, $options{to});
-            $path = $options{to};
+        if ($options{to}) {
+            my $file = _to_file($options{to}, $artifact);
+            if ($file ne $path) {
+                copy($path, $file);
+                $path = $file;
+            }
         }
         return $path;
     }
 
-    my $file;
-    if ( $options{to} ) {
-        $file = $options{to};
-        if ( -d $file ) {
-            $file = File::Spec->catfile( $file, "$artifact->{artifactId}." . $artifact->get_packaging() );
-        }
-    }
-
-    return $self->_download_remote($artifact, $file);
+    return $self->_download_remote($artifact, 
+        $options{to} 
+            ? _to_file($options{to}, $artifact)
+            : ());
 }
 
 sub _default_agent {
@@ -90,6 +88,15 @@ sub resolve {
 
 sub resolve_or_die {
     return shift->{maven}->get_repositories()->resolve_or_die(@_);
+}
+
+sub _to_file {
+    my ($to, $artifact) = @_;
+    if (-d $to) {
+        $to = File::Spec->catfile( $to, 
+            "$artifact->{artifactId}." . $artifact->get_packaging() );
+    }
+    return $to;
 }
 
 package Maven::Agent::DownloadedFile;
