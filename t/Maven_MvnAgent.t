@@ -44,10 +44,54 @@ sub os_path {
         : $path;
 }
 
+my $get_goal = 'org.apache.maven.plugins:maven-dependency-plugin:2.10:get';
+
+SKIP: {
+    skip("not cygwin", 4) if ($^O ne 'cygwin');
+
+    my $user_home = File::Spec->catdir($test_dir, 'HOME');
+    my $temp_dir = File::Temp->newdir();
+    my $mvn_test_user_home = File::Spec->catdir($temp_dir, 'HOME');
+    `cp -r $user_home $temp_dir`;
+    my $mvn_test_user_settings = File::Spec->catfile($mvn_test_user_home, '.m2', 'settings.xml');
+    `mv $mvn_test_user_home/.m2/empty_settings.xml $mvn_test_user_settings`;
+    ok((-f $mvn_test_user_settings), "cygwin temp .m2/settings.xml exists");
+
+    my $m2_home = $ENV{M2_HOME};
+    my $userprofile = $ENV{USERPROFILE};
+    eval {
+        $ENV{M2_HOME} = os_path(File::Spec->catdir($test_dir, 'M2_HOME'));
+        $ENV{USERPROFILE} = os_path($mvn_test_user_home);
+        my $agent = Maven::MvnAgent->new();
+        is($agent->get_maven()->dot_m2('settings.xml'), $mvn_test_user_settings, 
+            'cygwin agent user settings');
+
+        my $mvn_test_user_home_link = File::Spec->catdir($temp_dir, 'LINK_HOME');
+        `ln -s $mvn_test_user_home $mvn_test_user_home_link`;
+        $agent = Maven::MvnAgent->new('user.home' => $mvn_test_user_home_link);
+        is($agent->get_maven()->dot_m2('settings.xml'),
+            File::Spec->catfile($mvn_test_user_home_link, '.m2', 'settings.xml'),
+            'cygwin link agent user settings');
+        is($agent->get_command('javax.servlet:servlet-api:2.5'),
+            "mvn --settings " 
+                . escape_and_quote(os_path($mvn_test_user_settings)) 
+                . " -Duser.home=" 
+                . escape_and_quote(os_path($mvn_test_user_home)) 
+                . " $get_goal -DartifactId=\"servlet-api\" -DgroupId=\"javax.servlet\""
+                . " -Dpackaging=\"jar\" -DremoteRepositories=\"$maven_central_url\" -Dversion=\"2.5\"",
+            'cygwin get servlet-api command');
+    };
+    my $error = $@;
+    $ENV{M2_HOME} = $m2_home;
+    $ENV{USERPROFILE} = $userprofile;
+    die($@) if ($@);
+}
+
 SKIP: {
     eval { require LWP::UserAgent };
 
-    skip "LWP::UserAgent not installed", 7 if $@;
+    #skip("disabled mvn tests", 7) if 1;
+    skip("LWP::UserAgent not installed", 7) if $@;
 
     my $user_home = File::Spec->catdir($test_dir, 'HOME');
     my $temp_dir = File::Temp->newdir();
@@ -61,7 +105,6 @@ SKIP: {
         M2_HOME => File::Spec->catdir($test_dir, 'M2_HOME'),
         'user.home' => $mvn_test_user_home);
     is($agent->get_maven()->dot_m2('settings.xml'), $mvn_test_user_settings, 'user settings');
-    my $get_goal = 'org.apache.maven.plugins:maven-dependency-plugin:2.10:get';
     is($agent->get_command('javax.servlet:servlet-api:2.5'),
         "mvn --settings " 
             . escape_and_quote(os_path($mvn_test_user_settings)) 

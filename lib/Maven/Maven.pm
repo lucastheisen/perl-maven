@@ -32,12 +32,33 @@ sub _default_agent {
     return $agent;
 }
 
+sub _default_m2_home {
+    if ($^O eq 'cygwin') {
+        return Cygwin::win_to_posix_path($ENV{M2_HOME});
+    }
+    else { 
+        return $ENV{M2_HOME};
+    }
+}
+
+sub _default_user_home {
+    if ($^O eq 'cygwin') {
+        return Cygwin::win_to_posix_path($ENV{USERPROFILE});
+    }
+    elsif ($^O eq 'MSWin32') {
+        return $ENV{USERPROFILE};
+    }
+    else { 
+        return $ENV{HOME};
+    }
+}
+
 sub _init {
     my ($self, %options) = @_;
-    
+
     $self->{properties} = {
-        'env.M2_HOME' => $options{M2_HOME} || $ENV{M2_HOME} || croak( "M2_HOME not defined" ),
-        'user.home' => $options{'user.home'} || $ENV{HOME} || $ENV{USERPROFILE}
+        'env.M2_HOME' => $options{M2_HOME} || _default_m2_home(),
+        'user.home' => $options{'user.home'} || _default_user_home()
     };
     
     $self->{settings} = load_settings( 
