@@ -30,9 +30,9 @@ sub load_settings {
             Maven::Xml::Settings->new( file => $user_settings_file ),
             $settings );
     }
-    
+
     _interpolate( $settings, $properties );
-    
+
     return $settings;
 }
 

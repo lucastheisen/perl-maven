@@ -1,5 +1,10 @@
 Revision history for Perl module IPC::Open3::Callback
 
+1.07 2016-02-26
+    - Fix get/deploy/install_command to include global-settings
+    - Fix Maven_MvnAgent.t to skip tests if mvn fails
+    - Set proxy on test global settings
+
 1.06 2016-02-25
     - Fix default 'user.home' when using cygwin
 

@@ -34,6 +34,12 @@ sub _artifact_command {
             ? Cygwin::posix_to_win_path($file)
             : $file
     }
+    if (!$maven_options->{'--global-settings'}) {
+        my $file = $self->{maven}->m2_home('conf', 'settings.xml');
+        $maven_options->{'--global-settings'} = $^O eq 'cygwin'
+            ? Cygwin::posix_to_win_path($file)
+            : $file
+    }
     if (!$maven_options->{'-Duser.home'}) {
         my $path = $self->{maven}->get_property('user.home');
         $maven_options->{'-Duser.home'} = $^O eq 'cygwin'

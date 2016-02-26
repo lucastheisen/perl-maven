@@ -5,6 +5,7 @@ use Test::More;
 
 BEGIN { use_ok('Maven::MvnAgent') }
 
+use Carp;
 use Digest::MD5;
 use File::Basename;
 use File::Spec;
@@ -44,6 +45,56 @@ sub os_path {
         : $path;
 }
 
+sub write_global_settings {
+    my ($path, $proxy) = @_;
+
+    open(my $settings, '>', $path) || croak("cant open $path: $!");
+    print($settings "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    print($settings "<settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\"\n");
+    print($settings "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
+    print($settings "  xsi:schemaLocation=\"http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd\">\n");
+    my $proxies = Maven::MvnAgent->new()->get_maven()->get_settings()->get_proxies();
+    if ($proxies) {
+        print($settings "  <proxies>\n");
+        foreach my $proxy (@$proxies) {
+            next unless($proxy->get_active() && $proxy->get_active() =~ /^true$/i);
+            my $id = $proxy->get_id();
+            my $protocol = $proxy->get_protocol();
+            my $host = $proxy->get_host();
+            my $port = $proxy->get_port();
+            my $non_proxy_hosts = $proxy->get_nonProxyHosts();
+            my $username = $proxy->get_username();
+            my $password = $proxy->get_password();
+
+            print($settings "    <proxy>\n");
+            print($settings "      <id>$id</id>\n") if ($id);
+            print($settings "      <active>true</active>\n");
+            print($settings "      <protocol>$protocol</protocol>\n") if ($protocol);
+            print($settings "      <host>$host</host>\n") if ($host);
+            print($settings "      <port>$port</port>\n") if ($port);
+            print($settings "      <nonProxyHosts>$non_proxy_hosts</nonProxyHosts>\n") if ($non_proxy_hosts);
+            print($settings "      <username>$username</username>\n") if ($username);
+            print($settings "      <password>$port</password>\n") if ($password);
+            print($settings "    </proxy>\n");
+        }
+        print($settings "  </proxies>\n");
+    }
+    print($settings "  <profiles>\n");
+    print($settings "    <profile>\n");
+    print($settings "      <id>global</id>\n");
+    print($settings "      <activation><activeByDefault>true</activeByDefault></activation>\n");
+    print($settings "      <repositories>\n");
+    print($settings "        <repository>\n");
+    print($settings "          <id>central</id>\n");
+    print($settings "          <url>http://repo.maven.apache.org/maven2</url>\n");
+    print($settings "        </repository>\n");
+    print($settings "      </repositories>\n");
+    print($settings "    </profile>\n");
+    print($settings "  </profiles>\n");
+    print($settings "</settings>\n");
+    close($settings);
+}
+
 my $get_goal = 'org.apache.maven.plugins:maven-dependency-plugin:2.10:get';
 
 SKIP: {
@@ -62,6 +113,7 @@ SKIP: {
     eval {
         $ENV{M2_HOME} = os_path(File::Spec->catdir($test_dir, 'M2_HOME'));
         $ENV{USERPROFILE} = os_path($mvn_test_user_home);
+        my $mvn_test_global_settings = File::Spec->catfile($ENV{M2_HOME}, 'conf', 'settings.xml');
         my $agent = Maven::MvnAgent->new();
         is($agent->get_maven()->dot_m2('settings.xml'), $mvn_test_user_settings, 
             'cygwin agent user settings');
@@ -73,7 +125,9 @@ SKIP: {
             File::Spec->catfile($mvn_test_user_home_link, '.m2', 'settings.xml'),
             'cygwin link agent user settings');
         is($agent->get_command('javax.servlet:servlet-api:2.5'),
-            "mvn --settings " 
+            "mvn --global-settings "
+                . escape_and_quote(os_path($mvn_test_global_settings)) 
+                . " --settings " 
                 . escape_and_quote(os_path($mvn_test_user_settings)) 
                 . " -Duser.home=" 
                 . escape_and_quote(os_path($mvn_test_user_home)) 
@@ -90,23 +144,31 @@ SKIP: {
 SKIP: {
     eval { require LWP::UserAgent };
 
-    #skip("disabled mvn tests", 7) if 1;
-    skip("LWP::UserAgent not installed", 7) if $@;
+    #skip("disabled mvn tests", 9) if 1;
+    skip("LWP::UserAgent not installed", 9) if $@;
 
     my $user_home = File::Spec->catdir($test_dir, 'HOME');
     my $temp_dir = File::Temp->newdir();
     my $mvn_test_user_home = File::Spec->catdir($temp_dir, 'HOME');
     `cp -r $user_home $temp_dir`;
     my $mvn_test_user_settings = File::Spec->catfile($mvn_test_user_home, '.m2', 'settings.xml');
+    my $mvn_test_m2_home = File::Spec->catdir($temp_dir, 'M2_HOME');
+    mkdir($mvn_test_m2_home);
+    mkdir(File::Spec->catdir($mvn_test_m2_home, 'conf'));
+    my $mvn_test_global_settings = File::Spec->catfile($mvn_test_m2_home, 'conf', 'settings.xml');
     `mv $mvn_test_user_home/.m2/empty_settings.xml $mvn_test_user_settings`;
+    write_global_settings($mvn_test_global_settings, {});
     ok((-f $mvn_test_user_settings), "mvn test $mvn_test_user_home/.m2/settings.xml exists");
 
     my $agent = Maven::MvnAgent->new(
-        M2_HOME => File::Spec->catdir($test_dir, 'M2_HOME'),
+        M2_HOME => $mvn_test_m2_home,
         'user.home' => $mvn_test_user_home);
     is($agent->get_maven()->dot_m2('settings.xml'), $mvn_test_user_settings, 'user settings');
+    is($agent->get_maven()->m2_home('conf', 'settings.xml'), $mvn_test_global_settings, 'global settings');
     is($agent->get_command('javax.servlet:servlet-api:2.5'),
-        "mvn --settings " 
+        "mvn --global-settings "
+            . escape_and_quote(os_path($mvn_test_global_settings)) 
+            . " --settings " 
             . escape_and_quote(os_path($mvn_test_user_settings)) 
             . " -Duser.home=" 
             . escape_and_quote(os_path($mvn_test_user_home)) 
@@ -122,7 +184,12 @@ SKIP: {
             skip "mvn not installed", 5 if (system('which mvn') >> 8);
             $logger->warn("first mvn call, be patient, lots of downloads");
 
-            my $jta_jar_file = $agent->download($jta_jar);
+            my $jta_jar_file;
+            eval {
+                $jta_jar_file = $agent->download($jta_jar);
+            };
+            skip ("mvn failed: $@", 5) if ($@);
+
             ok($jta_jar_file, 'got jta jar file');
             ok(-s $jta_jar_file, 'jta jar file is not empty');
 

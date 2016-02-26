@@ -98,6 +98,10 @@ sub get_repositories {
     return $_[0]->{repositories};
 }
 
+sub get_settings {
+    return $_[0]->{settings};
+}
+
 sub _is_active_profile {
     my ($self, $profile) = @_;
 }
