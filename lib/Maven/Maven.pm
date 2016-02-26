@@ -241,6 +241,10 @@ Returns the value of the effective settings property indicated by C<$key>.
 
 Returns the repositories configured in the effective settings.
 
+=method get_settings()
+
+Returns the resolved maven settings (combines global and user settings).
+
 =method m2_home([@parts])
 
 Returns a path indicated by joining all of C<@parts> to the maven install
