@@ -30,17 +30,12 @@ sub add_central {
 }
 
 sub _artifact_not_found {
-    my ($self, $options) = @_;
-    my @options_entries = ();
-    foreach my $key ( keys( %$options ) ) {
-        if ( $options->{$key} ) {
-            push( @options_entries, "$key=>$options->{$key}" );
-        }
-    }
-    
-    return 'artifact not found for {' 
-        . join( '', @options_entries )
-        . '}';
+    my ( $self, $coordinate_or_artifact, $options ) = @_;
+    my $artifact = ref($coordinate_or_artifact)
+        && UNIVERSAL::isa($coordinate_or_artifact, 'Maven::Artifact')
+            ? $coordinate_or_artifact
+            : Maven::Artifact->new($coordinate_or_artifact, %$options)->get_coordinate();
+    return "artifact $artifact not found";
 }
 
 sub add_local {
@@ -96,8 +91,8 @@ sub resolve {
 
 sub resolve_or_die {
     my ($self, $coordinate_or_artifact, %parts) = @_;
-    my $resolved = resolve($self, $coordinate_or_artifact, %parts);
-    croak( _artifact_not_found( $self, \%parts ) ) if ( !$resolved );
+    my $resolved = $self->resolve($coordinate_or_artifact, %parts);
+    croak( $self->_artifact_not_found( $coordinate_or_artifact, \%parts ) ) if ( !$resolved );
     
     return $resolved;
 }

@@ -1,5 +1,8 @@
 Revision history for Perl module IPC::Open3::Callback
 
+1.08 2016-02-26
+    - Fix artifact not found message in resolve_or_die
+
 1.07 2016-02-26
     - Fix get/deploy/install_command to include global-settings
     - Fix Maven_MvnAgent.t to skip tests if mvn fails
