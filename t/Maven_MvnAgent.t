@@ -181,7 +181,7 @@ SKIP: {
         ok($jta_jar, 'resolve jta jar');
 
         SKIP: {
-            skip "mvn not installed", 5 if (system('which mvn') >> 8);
+            skip "mvn not installed", 5 if (system('which mvn > /dev/null 2>&1') >> 8);
             $logger->warn("first mvn call, be patient, lots of downloads");
 
             my $jta_jar_file;

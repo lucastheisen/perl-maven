@@ -33,6 +33,7 @@ sub _default_agent {
 }
 
 sub _default_m2_home {
+    return unless ($ENV{M2_HOME});
     if ($^O eq 'cygwin') {
         return Cygwin::win_to_posix_path($ENV{M2_HOME});
     }
@@ -56,8 +57,9 @@ sub _default_user_home {
 sub _init {
     my ($self, %options) = @_;
 
+    my $m2_home = $options{M2_HOME} || _default_m2_home();
     $self->{properties} = {
-        'env.M2_HOME' => $options{M2_HOME} || _default_m2_home(),
+        ($m2_home ? ('env.M2_HOME' => $m2_home) : ()),
         'user.home' => $options{'user.home'} || _default_user_home()
     };
     
