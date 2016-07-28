@@ -1,4 +1,7 @@
-Revision history for Perl module IPC::Open3::Callback
+Revision history for Perl module Maven::Agent
+
+1.10 2016-07-28
+    - fixed bug when M2_HOME is not declared
 
 1.09 2016-03-25
     - Fix issue: Undeclared dependency Class::Accessor #1 
