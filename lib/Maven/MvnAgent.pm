@@ -122,9 +122,10 @@ sub get_command {
 }
 
 sub _init {
-    my $self = shift;
+    my ($self, %options) = @_;
 
-    $self->Maven::Agent::_init(@_);
+    $self->Maven::Agent::_init(%options);
+    $self->{command_runner} = $options{command_runner};
 
     return $self;
 }
@@ -155,8 +156,13 @@ sub install_command {
 sub _run_or_die {
     my ($self, $command) = @_;
 
-    my $output = `$command`;
-    $logger->tracef("%s\n---- STDOUT ----\n%s\n---- END STDOUT ----", $command, $output);
+    if ($self->{command_runner}) {
+        &{$self->{command_runner}}($command);
+    }
+    else {
+        my $output = `$command`;
+        $logger->tracef("%s\n---- STDOUT ----\n%s\n---- END STDOUT ----", $command, $output);
+    }
 
     croak("Command [$command] failed: " . ($? >> 8)) if ($?);
 }
@@ -200,8 +206,18 @@ remote.
 
 =constructor new([%options])
 
-Creates a new agent. C<%options> is passed through to 
-L<Maven::Maven/new([%options])>.
+Creates a new agent. The available options are all options for 
+L<Maven::Maven/new([%options])>, plus:
+
+=over 4
+
+=item command_runner
+
+A subroutine to run C<mvn> commands.  This subroutine will be called with a
+single argument C<command> that must be executed.  The subroutine I<MUST> die
+if the command fails.
+
+=back
 
 =method deploy([\%maven_options], $artifact, $file, $repository_id, $repository_url, [%options])
 

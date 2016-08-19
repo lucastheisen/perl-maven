@@ -97,6 +97,39 @@ sub write_global_settings {
 
 my $get_goal = 'org.apache.maven.plugins:maven-dependency-plugin:2.10:get';
 
+{
+    $logger->info("test custom command_runner");
+    
+    my $user_home = File::Spec->catdir($test_dir, 'HOME');
+    my $temp_dir = File::Temp->newdir();
+    my $mvn_test_user_home = File::Spec->catdir($temp_dir, 'HOME');
+    `cp -r $user_home $temp_dir`;
+    my $mvn_test_user_settings = File::Spec->catfile($mvn_test_user_home, '.m2', 'settings.xml');
+    my $mvn_test_m2_home = File::Spec->catdir($temp_dir, 'M2_HOME');
+    mkdir($mvn_test_m2_home);
+    mkdir(File::Spec->catdir($mvn_test_m2_home, 'conf'));
+    my $mvn_test_global_settings = File::Spec->catfile($mvn_test_m2_home, 'conf', 'settings.xml');
+    `mv $mvn_test_user_home/.m2/empty_settings.xml $mvn_test_user_settings`;
+    write_global_settings($mvn_test_global_settings, {});
+
+    my $command;
+    my $agent = Maven::MvnAgent->new(
+        M2_HOME => $mvn_test_m2_home,
+        'user.home' => $mvn_test_user_home,
+        command_runner => sub {($command) = @_});
+    $agent->get('com.pastdev:foo:pom:1.0.1');
+    is($command,
+        "mvn --global-settings "
+            . escape_and_quote(os_path($mvn_test_global_settings)) 
+            . " --settings " 
+            . escape_and_quote(os_path($mvn_test_user_settings)) 
+            . " -Duser.home=" 
+            . escape_and_quote(os_path($mvn_test_user_home)) 
+            . " $get_goal -DartifactId=\"foo\" -DgroupId=\"com.pastdev\""
+            . " -Dpackaging=\"pom\" -DremoteRepositories=\"$maven_central_url\" -Dversion=\"1.0.1\"",
+        'command_runner get foo');
+}
+
 SKIP: {
     skip("not cygwin", 4) if ($^O ne 'cygwin');
 
