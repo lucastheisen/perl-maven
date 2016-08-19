@@ -4,7 +4,7 @@ Maven::Agent - A base agent for working with maven
 
 # VERSION
 
-version 1.10
+version 1.11
 
 # SYNOPSIS
 
