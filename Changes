@@ -1,5 +1,8 @@
 Revision history for Perl module Maven::Agent
 
+1.11 2016-08-19
+    - added support for external command runner for MvnAgent
+
 1.10 2016-07-28
     - fixed bug when M2_HOME is not declared
 
