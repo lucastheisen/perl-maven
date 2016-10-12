@@ -18,8 +18,10 @@ my $test_dir = dirname( File::Spec->rel2abs( $0 ) );
 my $settings;
 
 $settings = load_settings( 
-    File::Spec->catfile( $test_dir, 'M2_HOME', 'conf', 'settings.xml' ),
-    File::Spec->catfile( $test_dir, 'HOME', '.m2', 'settings.xml' ),
+    [
+        File::Spec->catfile( $test_dir, 'M2_HOME', 'conf', 'settings.xml' ),
+        File::Spec->catfile( $test_dir, 'HOME', '.m2', 'settings.xml' ),
+    ],
     {
         'user.home' => File::Spec->catfile( $test_dir, 'HOME' )
     }

@@ -15,20 +15,17 @@ our @EXPORT_OK = qw(load_settings);
 my $logger = Log::Any->get_logger();
 
 sub load_settings {
-    my ($global_settings_file, $user_settings_file, $properties) = @_;
+    my ($settings_files, $properties) = @_;
     
     my $settings = Maven::Xml::Settings->new( file =>
         File::ShareDir::module_file( 'Maven::Xml::Settings', 
             'settings.xml' ) );
-    if ( $global_settings_file && -f $global_settings_file ) {
-        $settings = _merge(
-            Maven::Xml::Settings->new( file => $global_settings_file ),
-            $settings );
-    }
-    if ( $user_settings_file && -f $user_settings_file ) {
-        $settings = _merge(
-            Maven::Xml::Settings->new( file => $user_settings_file ),
-            $settings );
+    foreach my $file (@$settings_files) {
+        if ( $file && -f $file ) {
+            $settings = _merge(
+                Maven::Xml::Settings->new( file => $file ),
+                $settings );
+        }
     }
 
     _interpolate( $settings, $properties );
@@ -157,8 +154,10 @@ __END__
 
     use Maven::SettingsLoader qw(load_settings);
     my $settings = load_settings(
-        '/path/to/global/settings.xml',
-        '/path/to/user/settings.xml',
+        [
+            '/path/to/global/settings.xml',
+            '/path/to/user/settings.xml',
+        ],
         {
             'env.M2_HOME' => $ENV{M2_HOME},
             'user.home' => $ENV{HOME}
@@ -168,9 +167,9 @@ __END__
 
 Used by L<Maven::Maven> to load settings files.
 
-=export_ok load_settings([$global_path], [$local_path], %properties)
+=export_ok load_settings(\@settings_files, \%properties)
 
-Will load C<$global_path>, then overlay C<$local_path>, interpolating 
+Will load C<\@settings_files> in order, interpolating 
 placeholders using the values from C<$properties>.
 
 =head1 SEE ALSO

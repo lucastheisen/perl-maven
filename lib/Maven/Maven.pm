@@ -63,9 +63,9 @@ sub _init {
         'user.home' => $options{'user.home'} || _default_user_home()
     };
     
-    $self->{settings} = load_settings( 
-        $self->m2_home( 'conf', 'settings.xml' ),
-        $self->dot_m2( 'settings.xml' ),
+    my $global_settings = $self->m2_home( 'conf', 'settings.xml' );
+    my $user_settings = $self->dot_m2( 'settings.xml' );
+    $self->{settings} = load_settings( [$global_settings, $user_settings],
         $self->{properties} );
 
     # some day we should load pom...
@@ -167,6 +167,7 @@ sub _load_active_profiles {
 
 sub m2_home {
     my ($self, @parts) = @_;
+    return unless ($self->{properties}{'env.M2_HOME'});
     return File::Spec->catdir( $self->{properties}{'env.M2_HOME'}, @parts );
 }
 
