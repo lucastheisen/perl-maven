@@ -24,27 +24,35 @@ sub _artifact_command {
     my $maven_options = ref($_[0]) eq 'HASH' ? shift : {};
     my $artifact = shift;
 
-    if (!$artifact->isa('Maven::Artifact')) {
+    unless ($artifact->isa('Maven::Artifact')) {
         $artifact = Maven::Artifact->new($artifact);
     }
 
-    if (!$maven_options->{'--settings'}) {
+    unless ($maven_options->{'--settings'}) {
         my $file = $self->{maven}->dot_m2('settings.xml');
         $maven_options->{'--settings'} = $^O eq 'cygwin'
             ? Cygwin::posix_to_win_path($file)
             : $file
     }
-    if (!$maven_options->{'--global-settings'}) {
+    unless ($maven_options->{'--global-settings'}) {
         my $file = $self->{maven}->m2_home('conf', 'settings.xml');
         $maven_options->{'--global-settings'} = $^O eq 'cygwin'
             ? Cygwin::posix_to_win_path($file)
             : $file
     }
-    if (!$maven_options->{'-Duser.home'}) {
+    unless ($maven_options->{'-Duser.home'}) {
         my $path = $self->{maven}->get_property('user.home');
         $maven_options->{'-Duser.home'} = $^O eq 'cygwin'
             ? Cygwin::posix_to_win_path($path)
             : $path
+    }
+    if ($self->{mvn_options}) {
+        foreach my $mvn_option (keys(%{$self->{mvn_options}})) {
+            unless ($maven_options->{$mvn_option}) {
+                $maven_options->{$mvn_option} = 
+                    $self->{mvn_options}{$mvn_option};
+            }
+        }
     }
 
     return $self, $maven_options, $artifact, @_;
@@ -78,8 +86,7 @@ sub deploy_command {
 sub _download_remote {
     my ($self, $artifact, $file) = @_;
 
-    my $uri = $self->get($artifact)->get_uri();
-
+    my $uri = $self->get($artifact)->get_uri(); 
     if ($file) {
         copy($uri->path(), $file)
             || croak('failed to copy file $!');
@@ -126,6 +133,7 @@ sub _init {
 
     $self->Maven::Agent::_init(%options);
     $self->{command_runner} = $options{command_runner};
+    $self->{mvn_options} = $options{mvn_options};
 
     return $self;
 }

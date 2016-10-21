@@ -1,5 +1,8 @@
 Revision history for Perl module Maven::Agent
 
+1.13 2016-10-21
+    - added support for mvn_options on MvnAgent at instance level
+
 1.12 2016-08-19
     - fixed uninitialized use of variable when M2_HOME is not defined
 
