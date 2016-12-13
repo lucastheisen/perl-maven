@@ -63,7 +63,7 @@ sub _init {
     $self->Maven::Repository::_init( 
         URI::file->new($^O =~ /^cygwin$/i
             #? Cygwin::win_to_posix_path($local_repository_path)
-            ? `cygpath -u $local_repository_path`
+            ? `cygpath -u \'$local_repository_path\'`
             : $local_repository_path)->as_string());
 
     return $self;
