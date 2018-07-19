@@ -111,6 +111,9 @@ sub _get_parser {
     elsif ( $name eq 'contributor' ) {
         return Maven::Xml::Pom::Contributor->new();
     }
+    elsif ( $name eq 'dependencyManagement' ) {
+        return Maven::Xml::Pom::DependencyManagement->new();
+    }
     elsif ( $name eq 'dependencies' ) {
         return Maven::Xml::Pom::Dependencies->new();
     }
