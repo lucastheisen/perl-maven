@@ -26,6 +26,15 @@ my $pom_for_parser_expected = {
     artifactId => 'my-project',
     version => '1.0.0',
     packaging => 'jar',
+    dependencyManagement => {
+        dependencies => {
+            'com.pastdev:managed:jar:' => {
+                groupId => 'com.pastdev',
+                artifactId => 'managed',
+                version => '1.0.0',
+            }
+        }
+    },
     dependencies => {
         'com.pastdev:dependency:jar:assembly' => {
             groupId => 'com.pastdev',
